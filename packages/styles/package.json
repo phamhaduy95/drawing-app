@@ -1,0 +1,14 @@
+{
+	"name": "@packages/styles",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"exports": {
+		"./components/*.css": "./components/*.css",
+		"./themes/*.css": "./themes/*.css"
+	},
+	"sideEffects": [
+		"./components/*.css",
+		"./themes/*.css"
+	]
+}

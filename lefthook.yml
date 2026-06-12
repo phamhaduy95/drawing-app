@@ -1,0 +1,18 @@
+# https://lefthook.dev/configuration/index.html
+pre-commit:
+  parallel: true
+  jobs:
+    - name: linting staged files
+      run: pnpm lint -- {staged_files}
+      glob: '*.{js,ts,jsx,tsx,vue,json}'
+
+    - name: formatting staged files
+      run: pnpm format -- {staged_files}
+      glob: '*.{js,ts,jsx,tsx,vue,json,md,mdx,css,astro}'
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: perform quality check (type-check, test:ci)
+      run: turbo run type-check test:ci

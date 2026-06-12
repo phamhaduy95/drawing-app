@@ -1,0 +1,104 @@
+{
+	"name": "@packages/vue-components",
+	"version": "0.0.1",
+	"type": "module",
+	"license": "MIT",
+	"author": "ph.duy113@gmail.com",
+	"description": "THis is a UI component library for building Vue application",
+	"keywords": [
+		"vue",
+		"components",
+		"ui"
+	],
+	"scripts": {
+		"build": "vite build && pnpm build-types",
+		"lint": "eslint .",
+		"format": "prettier --write .",
+		"type-check": "vue-tsc --build",
+		"test": "vitest",
+		"test-storybook": "vitest --project=storybook",
+		"test:ci": "vitest run --coverage",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build",
+		"coverage-report": "http-server ./coverage -p 9000",
+		"preview-storybook": "http-server ./storybook-static -p 9001",
+		"build-types": "vue-tsc -p tsconfig.lib.json --declaration --emitDeclarationOnly"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./components": {
+			"types": "./dist/components/index.d.ts",
+			"default": "./dist/components/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/phamhaduy95/UI-components.git",
+		"directory": "packages/vue-ui"
+	},
+	"bugs": {
+		"url": "https://github.com/phamhaduy95/UI-components/issues"
+	},
+	"homepage": "https://github.com/phamhaduy95/UI-components#readme",
+	"files": [
+		"dist"
+	],
+	"dependencies": {
+		"@ark-ui/vue": "^5.36.2",
+		"@heroicons/vue": "^2.2.0",
+		"@packages/styles": "workspace:*",
+		"@tanstack/vue-table": "^8.21.3",
+		"@tanstack/vue-virtual": "^3.13.26",
+		"@vueuse/core": "^14.3.0",
+		"dayjs": "^1.11.21",
+		"vue": "^3.5.34"
+	},
+	"devDependencies": {
+		"@chromatic-com/storybook": "catalog:",
+		"@configs/eslint-config": "workspace:*",
+		"@faker-js/faker": "^10.4.0",
+		"@storybook/addon-a11y": "catalog:",
+		"@storybook/addon-docs": "catalog:",
+		"@storybook/addon-vitest": "catalog:",
+		"@storybook/vue3-vite": "catalog:",
+		"@tailwindcss/vite": "catalog:",
+		"@tsconfig/node24": "^24.0.4",
+		"@types/node": "^24.12.4",
+		"@vitejs/plugin-vue": "catalog:",
+		"@vitejs/plugin-vue-jsx": "catalog:",
+		"@vitest/browser-playwright": "catalog:",
+		"@vitest/coverage-v8": "catalog:",
+		"@vue/tsconfig": "^0.8.1",
+		"@zag-js/popper": "^1.41.0",
+		"eslint": "^10.4.0",
+		"eslint-plugin-vue": "^10.9.1",
+		"globals": "^17.6.0",
+		"globby": "^16.2.0",
+		"http-server": "^14.1.1",
+		"lightningcss": "^1.32.0",
+		"npm-run-all2": "^8.0.4",
+		"playwright": "^1.60.0",
+		"storybook": "catalog:",
+		"tailwindcss": "^4.3.0",
+		"typescript": "catalog:",
+		"typescript-eslint": "^8.60.0",
+		"vite": "catalog:",
+		"vite-plugin-dts": "catalog:",
+		"vite-plugin-lib-inject-css": "catalog:",
+		"vitest": "catalog:",
+		"vue-eslint-parser": "^10.4.0",
+		"vue-tsc": "^3.3.2"
+	},
+	"peerDependencies": {
+		"vue": ">=3.5.0"
+	},
+	"engines": {
+		"node": "^20.19.0 || >=22.12.0"
+	}
+}

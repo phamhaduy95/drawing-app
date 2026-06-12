@@ -1,0 +1,38 @@
+{
+	"name": "root",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@configs/eslint-config": "workspace:*",
+		"eslint": "^10.0.3",
+		"lefthook": "^2.1.3",
+		"prettier": "3.5.3",
+		"prettier-plugin-astro": "0.14.1",
+		"prettier-plugin-tailwindcss": "^0.6.14",
+		"turbo": "^2.8.14",
+		"typescript": "catalog:",
+		"typescript-eslint": "^8.56.1"
+	},
+	"scripts": {
+		"turbo:build": "turbo run build",
+		"turbo:dev": "turbo run dev",
+		"turbo:prettier": "turbo run prettier",
+		"lint": "eslint",
+		"format": "prettier --write"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": ">=18"
+	},
+	"workspaces": [
+		"apps/*",
+		"packages/*",
+		"configs/*"
+	],
+	"packageManager": "pnpm@10.10.0",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"lefthook"
+		]
+	}
+}
