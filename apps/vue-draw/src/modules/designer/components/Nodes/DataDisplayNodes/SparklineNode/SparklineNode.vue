@@ -6,16 +6,13 @@
 	import { GridComponent, TooltipComponent } from 'echarts/components';
 	import { CanvasRenderer } from 'echarts/renderers';
 
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 
 	use([GridComponent, TooltipComponent, LineChart, CanvasRenderer]);
 
 	provide(THEME_KEY, 'light');
 
-	export type SparklineNodeProps = BaseCanvasNodeProps;
+	export type SparklineNodeProps = BaseNodeProps;
 
 	const props = defineProps<SparklineNodeProps>();
 
@@ -63,7 +60,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<div
 				class="w-full h-full pointer-events-auto bg-white flex items-center justify-center border border-gray-200 overflow-hidden"
@@ -75,5 +72,5 @@
 				/>
 			</div>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

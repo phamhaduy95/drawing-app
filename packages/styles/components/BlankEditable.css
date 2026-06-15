@@ -1,0 +1,47 @@
+.BlankEditable {
+    box-sizing: content-box;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 100%;
+
+	--field-font-size: var(--text-base);
+	--field-font-line-height: var(--text-base--line-height);
+}
+
+.BlankEditable_Area {
+	position: relative;
+	width: 100%;
+	flex: 1;
+	min-width: 0;
+}
+
+.BlankEditable_Preview {
+	display: inline-flex;
+	align-items: center;
+	font-size: var(--field-font-size);
+	line-height: var(--field-font-line-height);
+	cursor: text;
+	width: 100%;
+	border: 1px solid transparent;
+	color: var(--color-on-surface);
+	transition: background-color 0.2s ease;
+}
+
+.BlankEditable_Preview[data-placeholder-shown] {
+	color: var(--color-on-surface-variant);
+	opacity: 0.8;
+}
+
+
+.BlankEditable_Input {
+	width: max-content;	
+	font-size: var(--field-font-size);
+    line-height: var(--field-font-line-height);
+	outline: none;
+}
+
+.BlankEditable_Input:focus-visible {
+    outline: 2px solid red;
+}
+

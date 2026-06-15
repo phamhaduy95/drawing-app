@@ -5,12 +5,9 @@
 
 	import type { FormFieldNodeData } from '@/modules/designer/types/Node.type';
 
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 
-	export type DatePickerNodeProps = BaseCanvasNodeProps;
+	export type DatePickerNodeProps = BaseNodeProps;
 
 	const props = defineProps<DatePickerNodeProps>();
 
@@ -30,7 +27,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<DatePicker
 				class="w-full h-full pointer-events-auto"
@@ -40,5 +37,5 @@
 				@update:model-value="onDateUpdate"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

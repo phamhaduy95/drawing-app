@@ -1,12 +1,9 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { FormFieldNodeData } from '@/modules/designer/types/Node.type';
 
-	export type ProgressBarNodeProps = BaseCanvasNodeProps;
+	export type ProgressBarNodeProps = BaseNodeProps;
 
 	const props = defineProps<ProgressBarNodeProps>();
 
@@ -18,7 +15,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<div
 				class="w-full h-full pointer-events-auto flex items-center justify-center relative overflow-hidden bg-white border border-gray-300"
@@ -45,5 +42,5 @@
 				</svg>
 			</div>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

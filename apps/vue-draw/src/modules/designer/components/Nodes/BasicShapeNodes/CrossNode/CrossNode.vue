@@ -1,15 +1,17 @@
 <script setup lang="ts">
-	import { computed } from 'vue';
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
 		BaseNodeConnector,
-		type BaseNodeConnectorProps
+		type BaseNodeConnectorProps,
+		type BaseNodeProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
-	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
-	import { Position } from '@vue-flow/core';
 
-	export type CrossNodeProps = BaseCanvasNodeProps;
+	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
+
+	import { Position } from '@vue-flow/core';
+	import { computed } from 'vue';
+
+	export type CrossNodeProps = BaseNodeProps;
 
 	const props = defineProps<CrossNodeProps>();
 
@@ -63,7 +65,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default="{ shapeHeight, shapeWidth }">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -87,5 +89,5 @@
 				:connectors="connectors"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

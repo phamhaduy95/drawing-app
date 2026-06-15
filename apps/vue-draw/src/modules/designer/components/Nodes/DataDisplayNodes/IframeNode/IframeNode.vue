@@ -1,12 +1,9 @@
 <script setup lang="ts">
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import { computed } from 'vue';
 	import type { IframeNodeData } from '@/modules/designer/types/Node.type';
 
-	export type IframeNodeProps = BaseCanvasNodeProps;
+	export type IframeNodeProps = BaseNodeProps;
 
 	const props = defineProps<IframeNodeProps>();
 
@@ -14,7 +11,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default="{ shapeHeight, shapeWidth }">
 			<div
 				class="pointer-events-auto bg-white border border-gray-300 flex flex-col items-center justify-center overflow-hidden relative shadow-sm"
@@ -47,5 +44,5 @@
 				</div>
 			</div>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

@@ -6,16 +6,13 @@
 	import { provide, ref } from 'vue';
 	import VChart, { THEME_KEY } from 'vue-echarts';
 
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 
 	use([GridComponent, TooltipComponent, ScatterChart, CanvasRenderer]);
 
 	provide(THEME_KEY, 'light');
 
-	export type ScatterPlotNodeProps = BaseCanvasNodeProps;
+	export type ScatterPlotNodeProps = BaseNodeProps;
 
 	const props = defineProps<ScatterPlotNodeProps>();
 
@@ -84,7 +81,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default="{ shapeHeight, shapeWidth }">
 			<div
 				class="pointer-events-auto bg-white border border-gray-300 flex items-center justify-center p-2 relative"
@@ -97,5 +94,5 @@
 				/>
 			</div>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

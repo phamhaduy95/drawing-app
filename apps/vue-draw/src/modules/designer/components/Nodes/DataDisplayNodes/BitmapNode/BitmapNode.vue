@@ -1,13 +1,10 @@
 <script setup lang="ts">
 	import { computed, ref } from 'vue';
 	import { useVueFlow } from '@vue-flow/core';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { BitmapNodeData } from '@/modules/designer/types/Node.type';
 
-	export type BitmapNodeProps = BaseCanvasNodeProps;
+	export type BitmapNodeProps = BaseNodeProps;
 
 	const props = defineProps<BitmapNodeProps>();
 
@@ -35,7 +32,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<div
 				class="w-full h-full relative overflow-hidden pointer-events-auto flex items-center justify-center bg-gray-50 border border-dashed border-gray-500 group"
@@ -80,5 +77,5 @@
 				/>
 			</div>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

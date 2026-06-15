@@ -3,8 +3,8 @@
 	import { NodeResizer } from '@vue-flow/node-resizer';
 
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
+		type BaseNodeProps,
 		BaseNodeConnector,
 		type BaseNodeConnectorProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
@@ -14,7 +14,7 @@
 
 	const DEFAULT_ELLIPSE_HEIGHT = 50;
 
-	export type EllipseNodeProps = BaseCanvasNodeProps;
+	export type EllipseNodeProps = BaseNodeProps;
 
 	const props = defineProps<EllipseNodeProps>();
 
@@ -57,7 +57,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode
+	<BaseNode
 		v-bind="props"
 		:default-node-height="DEFAULT_ELLIPSE_HEIGHT"
 	>
@@ -96,5 +96,5 @@
 				:connectors="connectors"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

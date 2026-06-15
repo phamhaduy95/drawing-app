@@ -1,13 +1,10 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
 	import { Button } from '@packages/vue-components';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { FormFieldNodeData } from '@/modules/designer/types/Node.type';
 
-	export type ButtonNodeProps = BaseCanvasNodeProps;
+	export type ButtonNodeProps = BaseNodeProps;
 
 	const props = defineProps<ButtonNodeProps>();
 
@@ -15,7 +12,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<Button
 				class="w-full h-full pointer-events-auto"
@@ -25,5 +22,5 @@
 				{{ nodeConfig.label || 'Button' }}
 			</Button>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

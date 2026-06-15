@@ -1,12 +1,9 @@
 <script setup lang="ts">
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import { computed } from 'vue';
 	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
 
-	export type LineNodeProps = BaseCanvasNodeProps;
+	export type LineNodeProps = BaseNodeProps;
 
 	const props = defineProps<LineNodeProps>();
 
@@ -14,7 +11,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode
+	<BaseNode
 		v-slot="{ shapeHeight, shapeWidth }"
 		v-bind="props"
 	>
@@ -35,5 +32,5 @@
 				style="vector-effect: non-scaling-stroke"
 			></line>
 		</svg>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

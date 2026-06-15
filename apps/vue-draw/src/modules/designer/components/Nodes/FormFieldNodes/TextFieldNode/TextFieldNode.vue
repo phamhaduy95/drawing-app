@@ -2,13 +2,10 @@
 	import { computed } from 'vue';
 	import { TextInput } from '@packages/vue-components';
 	import { useVueFlow } from '@vue-flow/core';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { FormFieldNodeData } from '@/modules/designer/types/Node.type';
 
-	export type TextFieldNodeProps = BaseCanvasNodeProps;
+	export type TextFieldNodeProps = BaseNodeProps;
 
 	const props = defineProps<TextFieldNodeProps>();
 
@@ -25,7 +22,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<TextInput
 				class="w-full h-full pointer-events-auto"
@@ -34,5 +31,5 @@
 				@keydown="onKeyDown"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

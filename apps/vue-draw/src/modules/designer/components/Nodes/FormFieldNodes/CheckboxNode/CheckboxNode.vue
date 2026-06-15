@@ -2,13 +2,10 @@
 	import { computed } from 'vue';
 	import { Checkbox } from '@packages/vue-components';
 	import { useVueFlow } from '@vue-flow/core';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { FormFieldNodeData } from '@/modules/designer/types/Node.type';
 
-	export type CheckboxNodeProps = BaseCanvasNodeProps;
+	export type CheckboxNodeProps = BaseNodeProps;
 
 	const props = defineProps<CheckboxNodeProps>();
 
@@ -27,7 +24,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default>
 			<Checkbox
 				class="w-full h-full pointer-events-auto flex items-center justify-center"
@@ -36,5 +33,5 @@
 				@keydown="onKeyDown"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
+		type BaseNodeProps,
 		BaseNodeConnector,
 		type BaseNodeConnectorProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
 	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
 	import { Position } from '@vue-flow/core';
 
-	export type PentagonNodeProps = BaseCanvasNodeProps;
+	export type PentagonNodeProps = BaseNodeProps;
 
 	const props = defineProps<PentagonNodeProps>();
 
@@ -56,7 +56,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default="{ shapeHeight, shapeWidth }">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -80,5 +80,5 @@
 				:connectors="connectors"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

@@ -1,13 +1,10 @@
 <script setup lang="ts">
 	import { computed, ref, nextTick } from 'vue';
 	import { useVueFlow } from '@vue-flow/core';
-	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps
-	} from '@/modules/designer/components/Nodes/BaseNode';
+	import { BaseNode, type BaseNodeProps } from '@/modules/designer/components/Nodes/BaseNode';
 	import type { TextNodeData } from '@/modules/designer/types/Node.type';
 
-	export type TextNodeProps = BaseCanvasNodeProps;
+	export type TextNodeProps = BaseNodeProps;
 
 	const props = defineProps<TextNodeProps>();
 
@@ -44,7 +41,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode
+	<BaseNode
 		v-bind="props"
 		@dblclick="onDoubleClick"
 	>
@@ -79,5 +76,5 @@
 				{{ nodeConfig.content || 'Double click to edit' }}
 			</div>
 		</div>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

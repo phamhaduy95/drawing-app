@@ -1,15 +1,15 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
+		type BaseNodeProps,
 		BaseNodeConnector,
 		type BaseNodeConnectorProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
 	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
 	import { Position } from '@vue-flow/core';
 
-	export type SquareNodeProps = BaseCanvasNodeProps;
+	export type SquareNodeProps = BaseNodeProps;
 
 	const props = defineProps<SquareNodeProps>();
 
@@ -51,7 +51,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode
+	<BaseNode
 		v-bind="props"
 		:keep-aspect-ratio="true"
 		:keep-default-ratio="true"
@@ -79,5 +79,5 @@
 				:connectors="connectors"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

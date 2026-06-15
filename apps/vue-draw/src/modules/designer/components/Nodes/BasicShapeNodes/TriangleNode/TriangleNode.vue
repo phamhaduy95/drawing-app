@@ -1,7 +1,7 @@
 <script setup lang="ts">
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
+		type BaseNodeProps,
 		BaseNodeConnector,
 		type BaseNodeConnectorProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
@@ -9,7 +9,7 @@
 	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
 	import { Position } from '@vue-flow/core';
 
-	export type TriangleNodeProps = BaseCanvasNodeProps;
+	export type TriangleNodeProps = BaseNodeProps;
 
 	const props = defineProps<TriangleNodeProps>();
 
@@ -68,7 +68,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode v-bind="props">
+	<BaseNode v-bind="props">
 		<template #default="{ shapeHeight, shapeWidth }">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -93,5 +93,5 @@
 				:is-node-selected="selected"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>

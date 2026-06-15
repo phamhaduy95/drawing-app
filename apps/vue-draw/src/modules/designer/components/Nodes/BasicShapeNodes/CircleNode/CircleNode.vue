@@ -1,8 +1,8 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
 	import {
-		BaseCanvasNode,
-		type BaseCanvasNodeProps,
+		BaseNode,
+		type BaseNodeProps,
 		BaseNodeConnector,
 		type BaseNodeConnectorProps
 	} from '@/modules/designer/components/Nodes/BaseNode';
@@ -10,7 +10,7 @@
 	import type { BasicShapeNodeData } from '@/modules/designer/types/Node.type';
 	import { Position } from '@vue-flow/core';
 
-	export type CircleNodeProps = BaseCanvasNodeProps;
+	export type CircleNodeProps = BaseNodeProps;
 
 	const props = defineProps<CircleNodeProps>();
 
@@ -56,7 +56,7 @@
 </script>
 
 <template>
-	<BaseCanvasNode
+	<BaseNode
 		v-bind="props"
 		:keep-aspect-ratio="true"
 		:keep-default-ratio="true"
@@ -87,5 +87,5 @@
 				:is-node-selected="selected"
 			/>
 		</template>
-	</BaseCanvasNode>
+	</BaseNode>
 </template>
