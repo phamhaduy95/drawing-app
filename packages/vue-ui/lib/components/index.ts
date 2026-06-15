@@ -39,4 +39,5 @@ export * from './ProgressBar';
 export * from './TextArea';
 export * from './Collapsible';
 export * from './Dialog';
+export * from './SuggestionInput';
 

@@ -1,0 +1,85 @@
+.SuggestionInput_Positioner {
+	z-index: var(--layer-index, 1100);
+}
+
+.SuggestionInput_Content {
+	background-color: var(--color-surface-container-lowest);
+	color: var(--color-on-surface);
+	border-radius: 6px;
+	border: 1px solid var(--color-outline-variant);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+	min-width: 200px;
+	outline: none;
+	display: flex;
+	flex-direction: column;
+	animation: popover-fade-in 0.15s ease-out;
+}
+
+.SuggestionInput_Dropdown {
+	max-height: 240px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	padding: 4px;
+}
+
+.SuggestionInput_Item {
+	padding: 8px 12px;
+	font-size: 0.875rem;
+	cursor: pointer;
+	border-radius: 4px;
+	color: var(--color-on-surface-variant);
+}
+
+.SuggestionInput_Item[data-highlighted],
+.SuggestionInput_Item:hover {
+	background-color: var(--color-surface-container);
+	color: var(--color-on-surface);
+}
+
+.SuggestionInput_Empty {
+	padding: 12px;
+	font-size: 0.875rem;
+	color: var(--color-on-surface-variant);
+	text-align: center;
+}
+
+@keyframes popover-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.SuggestionInput_Overlay {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	padding-inline: var(--field-padding-inline);
+	padding-block: var(--field-padding-block);
+	display: flex;
+	align-items: flex-start;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow: hidden;
+	color: transparent;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}
+
+.SuggestionInput_Input::placeholder {
+	color: var(--color-on-surface-variant);
+}
+
+.SuggestionInput_Chip {
+	background-color: var(--color-primary-container);
+	color: var(--color-on-primary-container);
+	border-radius: 4px;
+	padding: 2px 0;
+}
