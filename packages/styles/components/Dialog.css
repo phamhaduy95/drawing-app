@@ -1,0 +1,125 @@
+.Dialog_Backdrop {
+	position: fixed;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(4px);
+	z-index: calc(var(--layer-index, 1000));
+	animation: dialog-fade-in 0.2s ease-out;
+}
+
+.Dialog_Positioner {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: calc(var(--layer-index, 1000));
+}
+
+.Dialog_Content {
+	background-color: var(--color-surface-container-lowest);
+	color: var(--color-on-surface);
+	border-radius: 12px;
+	box-shadow: var(--shadow);
+	width: 100%;
+	max-width: 480px;
+	padding: 24px;
+	position: relative;
+	animation: dialog-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	display: flex;
+	flex-direction: column;
+}
+
+.Dialog_Content[data-has-nested] {
+	transform: scale(calc(1 - var(--nested-layer-count) * 0.05));
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.Dialog_Title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.Dialog_Description {
+	color: var(--color-on-surface-variant);
+	font-size: 0.875rem;
+	line-height: 1.5;
+	margin-bottom: 24px;
+}
+
+.Dialog_Body {
+	flex: 1;
+}
+
+.Dialog_Footer {
+	margin-top: 24px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+}
+
+.Dialog_CloseTrigger {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	cursor: pointer;
+	color: var(--color-on-surface-variant);
+	background: transparent;
+	border: none;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.Dialog_CloseTrigger:hover {
+	background-color: var(--color-surface-container-highest);
+	color: var(--color-on-surface);
+}
+
+.Dialog_CloseTrigger svg {
+	width: 20px;
+	height: 20px;
+}
+
+@keyframes dialog-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes dialog-slide-up {
+	from { 
+		opacity: 0;
+		transform: translateY(10px) scale(0.98);
+	}
+	to { 
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.Dialog_Content[data-state="closed"] {
+	animation: dialog-slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.Dialog_Backdrop[data-state="closed"] {
+	animation: dialog-fade-out 0.2s ease-in forwards;
+}
+
+@keyframes dialog-slide-down {
+	from { 
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	to { 
+		opacity: 0;
+		transform: translateY(10px) scale(0.98);
+	}
+}
+
+@keyframes dialog-fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
