@@ -13,6 +13,7 @@
 		"format": "prettier . --write"
 	},
 	"dependencies": {
+		"@heroicons/vue": "^2.2.0",
 		"@packages/styles": "workspace:*",
 		"@packages/vue-components": "workspace:*",
 		"@vue-flow/background": "^1.3.2",

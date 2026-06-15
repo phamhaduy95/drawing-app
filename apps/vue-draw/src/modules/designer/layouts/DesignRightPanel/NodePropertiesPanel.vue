@@ -17,6 +17,7 @@
 		type FormFieldNodeData,
 		NodeType
 	} from '@/modules/designer/types/Node.type';
+	import { PropertyField } from '../PropertyField';
 
 	type NumberInputProps = ComponentInstance<typeof NumberInput>['$props'];
 	type SingleSliderProps = ComponentInstance<typeof SingleSlider>['$props'];
@@ -113,17 +114,18 @@
 	<div class="flex-1 space-y-4 overflow-y-auto px-4 py-2">
 		<div class="space-y-2">
 			<h3 class="text-sm font-semibold uppercase tracking-wide text-gray-800">Layout</h3>
-			<div class="grid grid-cols-2 gap-3">
-				<div>
-					<NumberInput
-						class="w-full"
-						label="X"
-						size="xs"
-						:min="0"
-						:model-value="nodePosition?.x"
-						@value-change="handleXChange"
-					/>
-				</div>
+			<div class="grid grid-cols-1 gap-3">
+				<PropertyField label="Position X">
+					<template #input>
+						<NumberInput
+							class="w-full"
+							size="xs"
+							:min="0"
+							:model-value="nodePosition?.x"
+							@value-change="handleXChange"
+						/>
+					</template>
+				</PropertyField>
 				<div>
 					<NumberInput
 						class="w-full"
