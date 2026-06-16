@@ -32,7 +32,7 @@
 	<div class="flex h-screen w-screen overflow-hidden bg-white text-gray-800">
 		<!-- Left Navigation Sidebar -->
 		<aside
-			class="z-20 flex flex-col border-r border-gray-200 bg-gray-50 shadow-sm transition-all duration-300"
+			class="z-3 flex flex-col border-r border-gray-200 bg-gray-50 shadow-sm transition-all duration-300"
 			:class="isSidebarOpen ? 'w-64' : 'w-16'"
 		>
 			<div class="flex h-14 items-center justify-between border-b border-gray-200 px-4">

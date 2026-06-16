@@ -2,15 +2,18 @@
 	import {
 		Button,
 		Dialog,
+		IconButton,
 		RadioGroup,
 		SingleCombobox,
 		SuggestionInput
 	} from '@packages/vue-components';
-	import { ref } from 'vue';
+	import { ref, watch } from 'vue';
+	import { Bars3Icon, TrashIcon, PlusIcon } from '@heroicons/vue/20/solid';
 	import { useTagBindingDialog } from './useTagBindingDialog';
 	import { tagOptions } from '@/modules/designer/constant/defaultTags';
+	import type { ConditionalRule } from './TagBindingDialog.type';
 
-	const { isOpen, closeDialog, confirmDialog } = useTagBindingDialog();
+	const { isOpen, closeDialog, confirmDialog, initialData } = useTagBindingDialog();
 
 	const options = [
 		{ label: 'Bind', value: 'bind' },
@@ -21,7 +24,60 @@
 	const selectedMode = ref('bind');
 	const tagValue = ref('');
 	const expressionValue = ref('');
-	const conditionalExpressionValue = ref('');
+	const rules = ref<ConditionalRule[]>([]);
+	const dragIndex = ref<number | null>(null);
+
+	watch(isOpen, (val) => {
+		if (val && initialData.value) {
+			tagValue.value = initialData.value.tag || '';
+			expressionValue.value = initialData.value.expression || '';
+			rules.value = initialData.value.rules ? [...initialData.value.rules] : [];
+			if (initialData.value.rules && initialData.value.rules.length > 0) {
+				selectedMode.value = 'conditional-expression';
+			} else if (initialData.value.expression) {
+				selectedMode.value = 'expression';
+			} else {
+				selectedMode.value = 'bind';
+			}
+		} else if (!val) {
+			tagValue.value = '';
+			expressionValue.value = '';
+			rules.value = [];
+			selectedMode.value = 'bind';
+		}
+	});
+
+	const addRule = () => {
+		rules.value.push({
+			id: Math.random().toString(36).substr(2, 9),
+			condition: '',
+			expression: ''
+		});
+	};
+
+	const removeRule = (index: number) => {
+		rules.value.splice(index, 1);
+	};
+
+	const onDragStart = (e: DragEvent, index: number) => {
+		if (e.dataTransfer) {
+			e.dataTransfer.effectAllowed = 'move';
+			e.dataTransfer.dropEffect = 'move';
+			e.dataTransfer.setData('text/plain', index.toString());
+		}
+		dragIndex.value = index;
+	};
+
+	const onDrop = (_: DragEvent, dropIndex: number) => {
+		if (dragIndex.value === null || dragIndex.value === dropIndex) return;
+
+		const rulesCopy = [...rules.value];
+		const [draggedItem] = rulesCopy.splice(dragIndex.value, 1);
+		if (!draggedItem) return;
+		rulesCopy.splice(dropIndex, 0, draggedItem!);
+		rules.value = rulesCopy;
+		dragIndex.value = null;
+	};
 
 	const handleOpenChange = (open: boolean) => {
 		if (!open) {
@@ -35,7 +91,9 @@
 
 	const handleConfirm = () => {
 		confirmDialog({
-			tag: tagValue.value
+			tag: tagValue.value,
+			expression: expressionValue.value,
+			rules: rules.value
 		});
 	};
 </script>
@@ -81,12 +139,65 @@
 				v-else-if="selectedMode === 'conditional-expression'"
 				class="animate-in fade-in slide-in-from-top-2 duration-200"
 			>
-				<SuggestionInput
-					v-model="conditionalExpressionValue"
-					label="Tag name"
-					:suggestions="tagOptions"
-					placeholder="Enter conditional expression"
-				/>
+				<div class="flex flex-col gap-4">
+					<div class="space-y-3">
+						<div
+							v-for="(rule, index) in rules"
+							:key="rule.id"
+							class="flex items-start gap-3 p-3 border rounded-md border-gray-200 bg-gray-50/50 shadow-sm transition-colors hover:bg-gray-50"
+							:class="{ 'opacity-50': dragIndex === index }"
+							draggable="true"
+							@dragstart="onDragStart($event, index)"
+							@dragover.prevent
+							@drop="onDrop($event, index)"
+						>
+							<div
+								class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-7"
+							>
+								<Bars3Icon class="w-5 h-5" />
+							</div>
+
+							<div class="flex-1">
+								<SuggestionInput
+									v-model="rule.condition"
+									label="Condition"
+									:suggestions="tagOptions"
+									placeholder="e.g. tag1 > 10 AND tag2 == 1"
+								/>
+							</div>
+
+							<div class="flex-1">
+								<SuggestionInput
+									v-model="rule.expression"
+									label="Expression"
+									:suggestions="tagOptions"
+									placeholder="e.g. tag1 * 2"
+								/>
+							</div>
+
+							<div class="shrink-0 mt-7">
+								<IconButton
+									variant="text"
+									color="error"
+									aria-label="Remove rule"
+									@click="removeRule(index)"
+								>
+									<TrashIcon class="w-4 h-4" />
+								</IconButton>
+							</div>
+						</div>
+					</div>
+
+					<Button
+						variant="outlined"
+						color="primary"
+						class="w-full border-dashed"
+						@click="addRule"
+					>
+						<PlusIcon class="w-4 h-4 mr-1" />
+						Add Rule
+					</Button>
+				</div>
 			</div>
 		</div>
 

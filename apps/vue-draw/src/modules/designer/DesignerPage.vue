@@ -26,6 +26,7 @@
 
 	import type { DesignGraphNode } from './types/Node.type';
 	import { useEdgeCreation } from './composables/useEdgeCreation';
+	import TagBindingDialog from './components/Dialog/TagBindingDialog/TagBindingDialog.vue';
 
 	// We let vue-flow manage state of nodes and edges internally to reduce memory usage
 	const initialNodes: Array<DesignGraphNode> = [];
@@ -121,7 +122,7 @@
 	<div class="flex h-full w-full flex-col overflow-hidden bg-gray-50">
 		<!-- Top Toolbar -->
 		<div
-			class="z-10 flex h-10 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-2 shadow-sm"
+			class="z-2 flex h-10 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-2 shadow-sm"
 		>
 			<DesignToolbar />
 		</div>
@@ -193,4 +194,5 @@
 			<DesignRightPanel />
 		</div>
 	</div>
+	<TagBindingDialog />
 </template>

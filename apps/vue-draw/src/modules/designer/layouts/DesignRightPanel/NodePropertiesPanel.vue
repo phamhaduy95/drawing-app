@@ -12,7 +12,6 @@
 	} from '@/modules/designer/types/Node.type';
 	import { PropertyField } from '../PropertyField';
 	import { useTagBindingDialog } from '@/modules/designer/components/Dialog/TagBindingDialog/useTagBindingDialog';
-	import TagBindingDialog from '@/modules/designer/components/Dialog/TagBindingDialog/TagBindingDialog.vue';
 
 	type NumberInputProps = ComponentInstance<typeof NumberInput>['$props'];
 	type SingleSliderProps = ComponentInstance<typeof SingleSlider>['$props'];
@@ -210,7 +209,5 @@
 				@update:model-value="handleProgressBarValueChange"
 			/>
 		</div>
-
-		<TagBindingDialog />
 	</div>
 </template>

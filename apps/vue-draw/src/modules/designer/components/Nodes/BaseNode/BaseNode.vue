@@ -155,7 +155,7 @@
 			<Chip
 				v-for="boundTag in boundTags"
 				:key="boundTag.id"
-				:label="boundTag.value"
+				:label="boundTag.label.value"
 				removable
 				color="primary"
 				size="sm"
