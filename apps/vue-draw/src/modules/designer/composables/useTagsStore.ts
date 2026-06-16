@@ -1,19 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { TagData } from '@/modules/designer/types/Node.type';
+import type { MeasurementType } from '@/modules/designer/types/Tag.type';
+import { defaultTags } from '@/modules/designer/constant/defaultTags';
 
 export const useTagsStore = defineStore('tags', () => {
-	const tags = ref<TagData[]>([
-		{ id: 'tag-1', label: 'Customer Name', value: 'John Doe' },
-		{ id: 'tag-2', label: 'Customer Email', value: 'john@example.com' },
-		{ id: 'tag-3', label: 'Order Total', value: '$120.00' },
-		{ id: 'tag-4', label: 'Status', value: 'Pending' }
-	]);
+	const tags = ref<MeasurementType[]>(defaultTags);
 
 	const updateTagValue = (id: string, value: string) => {
 		const tag = tags.value.find((t) => t.id === id);
 		if (tag) {
-			tag.value = value;
+			tag.value.value = value;
 		}
 	};
 

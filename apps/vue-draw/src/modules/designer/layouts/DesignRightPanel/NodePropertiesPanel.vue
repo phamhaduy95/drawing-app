@@ -2,33 +2,24 @@
 	import { computed, type ComponentInstance } from 'vue';
 	import type { Dimensions, XYPosition } from '@vue-flow/core';
 
-	import {
-		SingleSlider,
-		NumberInput,
-		ColorPicker,
-		Switch,
-		TextInput
-	} from '@packages/vue-components';
+	import { SingleSlider, NumberInput, ColorPicker, Switch } from '@packages/vue-components';
 	import { useNodeConfig } from '@/modules/designer/composables/useNodeConfig';
 	import { defaultBasicShapeNodeData } from '@/modules/designer/constant/default';
-	import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
 	import {
 		type BasicShapeNodeData,
 		type FormFieldNodeData,
 		NodeType
 	} from '@/modules/designer/types/Node.type';
 	import { PropertyField } from '../PropertyField';
+	import { useTagBindingDialog } from '@/modules/designer/components/Dialog/TagBindingDialog/useTagBindingDialog';
+	import TagBindingDialog from '@/modules/designer/components/Dialog/TagBindingDialog/TagBindingDialog.vue';
 
 	type NumberInputProps = ComponentInstance<typeof NumberInput>['$props'];
 	type SingleSliderProps = ComponentInstance<typeof SingleSlider>['$props'];
 
-	const tagsStore = useTagsStore();
 	const { selectedNode, updateNodeBasicProps, updateNodeData } = useNodeConfig();
 
-	const boundTags = computed(() => {
-		const tagIds = nodeConfigurableData.value.tagIds || [];
-		return tagsStore.tags.filter((t) => tagIds.includes(t.id));
-	});
+	const { openDialog } = useTagBindingDialog();
 
 	const nodePosition = computed<XYPosition>(() => ({
 		x: Math.round(selectedNode.value?.position?.x ?? 0),
@@ -85,10 +76,6 @@
 		updateNodeData<BasicShapeNodeData>({ strokeWidth: value });
 	};
 
-	const handleShowTagChange = (value: boolean) => {
-		updateNodeData<BasicShapeNodeData>({ showTag: value });
-	};
-
 	const nodeHidden = computed(() => selectedNode.value?.hidden ?? false);
 	const nodeZIndex = computed(() => selectedNode.value?.zIndex ?? 0);
 
@@ -115,7 +102,10 @@
 		<div class="space-y-2">
 			<h3 class="text-sm font-semibold uppercase tracking-wide text-gray-800">Layout</h3>
 			<div class="grid grid-cols-1 gap-3">
-				<PropertyField label="Position X">
+				<PropertyField
+					label="Position X"
+					@bind="openDialog({ tag: 'AA' })"
+				>
 					<template #input>
 						<NumberInput
 							class="w-full"
@@ -126,16 +116,17 @@
 						/>
 					</template>
 				</PropertyField>
-				<div>
-					<NumberInput
-						class="w-full"
-						label="Y"
-						size="xs"
-						:min="0"
-						:model-value="nodePosition?.y"
-						@value-change="handleYChange"
-					/>
-				</div>
+				<PropertyField label="Position Y">
+					<template #input>
+						<NumberInput
+							class="w-full"
+							size="xs"
+							:min="0"
+							:model-value="nodePosition?.y"
+							@value-change="handleYChange"
+						/>
+					</template>
+				</PropertyField>
 				<div>
 					<NumberInput
 						class="w-full"
@@ -220,27 +211,6 @@
 			/>
 		</div>
 
-		<!-- Bound Tag -->
-		<div
-			v-if="boundTags.length > 0"
-			class="space-y-4"
-		>
-			<h3 class="text-sm font-semibold uppercase tracking-wide text-gray-800">Data Binding</h3>
-			<Switch
-				name="show-tag"
-				label="Show Bound Data"
-				:checked="nodeConfigurableData.showTag"
-				@update:checked="handleShowTagChange"
-			/>
-			<div class="space-y-2">
-				<TextInput
-					v-for="boundTag in boundTags"
-					:key="boundTag.id"
-					:label="boundTag.label"
-					:model-value="boundTag.value"
-					@update:model-value="tagsStore.updateTagValue(boundTag.id, $event)"
-				/>
-			</div>
-		</div>
+		<TagBindingDialog />
 	</div>
 </template>
