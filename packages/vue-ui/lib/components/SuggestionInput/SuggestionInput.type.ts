@@ -12,6 +12,7 @@ export interface SuggestionInputProps extends /* @vue-ignore */ HTMLAttributes, 
 	suggestions: (string | SuggestionItem)[];
 	triggerChar?: string;
 	rows?: number;
+	as?: 'input' | 'textarea';
 }
 
 export type SuggestionInputEmits = {

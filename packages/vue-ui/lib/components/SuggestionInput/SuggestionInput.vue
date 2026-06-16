@@ -13,6 +13,7 @@
 
 	import '@packages/styles/components/SuggestionInput.css';
 	import '@packages/styles/components/TextArea.css';
+	import '@packages/styles/components/TextInput.css';
 
 	defineOptions({ inheritAttrs: false });
 
@@ -24,7 +25,8 @@
 		required: false,
 		disabled: false,
 		clearable: false,
-		rows: 3
+		rows: 2,
+		as: 'textarea'
 	});
 
 	const emit = defineEmits<SuggestionInputEmits & { valueChange: [e: InputEvent] }>();
@@ -181,7 +183,10 @@
 	<ArkPopover.Root
 		:open="isOpen"
 		:auto-focus="false"
-		:positioning="{ placement: 'bottom-start' }"
+		:positioning="{
+			placement: 'bottom-start',
+			strategy: 'fixed'
+		}"
 		@update:open="isOpen = $event"
 	>
 		<ArkPopover.Anchor as-child>
@@ -222,17 +227,22 @@
 						</template>
 					</div>
 
-					<textarea
+					<component
+						:is="as"
 						:id="inputId"
 						ref="inputRef"
-						class="TextArea_Input SuggestionInput_Input"
+						:class="[
+							as === 'textarea' ? 'TextArea_Input' : 'TextInput_Input',
+							'SuggestionInput_Input'
+						]"
 						:placeholder="placeholder"
 						:disabled="disabled"
 						:aria-describedby="supportingText ? supportingTextId : undefined"
 						:aria-invalid="status === 'error'"
 						:value="inputValue"
 						:required="required"
-						:rows="rows"
+						:rows="as === 'textarea' ? rows : undefined"
+						:type="as === 'input' ? 'text' : undefined"
 						v-bind="$attrs"
 						@input="handleInput"
 						@keydown="handleKeyDown"
@@ -254,7 +264,10 @@
 			</BaseField>
 		</ArkPopover.Anchor>
 		<Teleport to="body">
-			<ArkPopover.Positioner class="SuggestionInput_Positioner">
+			<ArkPopover.Positioner
+				:style="{ zIndex: 10000 }"
+				class="SuggestionInput_Positioner"
+			>
 				<ArkPopover.Content class="SuggestionInput_Content">
 					<div
 						v-if="filteredSuggestions.length > 0"

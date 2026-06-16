@@ -1,7 +1,7 @@
 .TextArea .BaseField_Field {
 	height: auto;
-	min-height: calc(var(--field-height) * 2);
 	align-items: flex-start;
+
 }
 
 .TextArea_Input {
@@ -12,7 +12,7 @@
 	caret-color: var(--color-primary);
 	background: transparent;
 	border: none;
-	resize: vertical;
+	resize: none;
 	font-family: inherit;
 	&:focus {
 		outline-style: none;

@@ -8,7 +8,7 @@
 		SuggestionInput
 	} from '@packages/vue-components';
 	import { ref, watch } from 'vue';
-	import { Bars3Icon, TrashIcon, PlusIcon } from '@heroicons/vue/20/solid';
+	import { Bars3Icon, TrashIcon } from '@heroicons/vue/20/solid';
 	import { useTagBindingDialog } from './useTagBindingDialog';
 	import { tagOptions } from '@/modules/designer/constant/defaultTags';
 	import type { ConditionalRule } from './TagBindingDialog.type';
@@ -102,105 +102,107 @@
 	<Dialog
 		title="Tag Bindings"
 		:open="isOpen"
+		:style="{
+			height: 'min(36rem, calc(100dvh - 4rem))',
+			maxWidth: 'min(42rem, calc(100dvw - 12rem))'
+		}"
 		@update:open="handleOpenChange"
 	>
 		<div class="flex flex-col gap-6 py-2">
 			<RadioGroup
 				v-model="selectedMode"
-				label="Mode"
+				label="BindingMode"
 				:options="options"
+				:size="'sm'"
 			/>
+			<div class="flex flex-col w-full h-full">
+				<div
+					v-if="selectedMode === 'bind'"
+					class="animate-in fade-in slide-in-from-top-2 duration-200"
+				>
+					<SingleCombobox
+						v-model="tagValue"
+						label="Tag"
+						:items="tagOptions"
+						placeholder="Select a tag"
+					/>
+				</div>
 
-			<div
-				v-if="selectedMode === 'bind'"
-				class="animate-in fade-in slide-in-from-top-2 duration-200"
-			>
-				<SingleCombobox
-					v-model="tagValue"
-					label="Tag"
-					:items="tagOptions"
-					placeholder="Select a tag"
-				/>
-			</div>
+				<div
+					v-else-if="selectedMode === 'expression'"
+					class="animate-in fade-in slide-in-from-top-2 duration-200"
+				>
+					<SuggestionInput
+						v-model="expressionValue"
+						label="Expression"
+						:suggestions="tagOptions"
+						placeholder="Enter expression (e.g. tag1 + tag2)"
+						as="input"
+					/>
+				</div>
 
-			<div
-				v-else-if="selectedMode === 'expression'"
-				class="animate-in fade-in slide-in-from-top-2 duration-200"
-			>
-				<SuggestionInput
-					v-model="expressionValue"
-					label="Expression"
-					:suggestions="tagOptions"
-					placeholder="Enter expression (e.g. tag1 + tag2)"
-				/>
-			</div>
-
-			<div
-				v-else-if="selectedMode === 'conditional-expression'"
-				class="animate-in fade-in slide-in-from-top-2 duration-200"
-			>
-				<div class="flex flex-col gap-4">
-					<div class="space-y-3">
-						<div
-							v-for="(rule, index) in rules"
-							:key="rule.id"
-							class="flex items-start gap-3 p-3 border rounded-md border-gray-200 bg-gray-50/50 shadow-sm transition-colors hover:bg-gray-50"
-							:class="{ 'opacity-50': dragIndex === index }"
-							draggable="true"
-							@dragstart="onDragStart($event, index)"
-							@dragover.prevent
-							@drop="onDrop($event, index)"
-						>
+				<div
+					v-else-if="selectedMode === 'conditional-expression'"
+					class="animate-in fade-in slide-in-from-top-2 duration-200"
+				>
+					<div class="flex flex-col gap-4">
+						<div class="space-y-3">
 							<div
-								class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-7"
+								v-for="(rule, index) in rules"
+								:key="rule.id"
+								class="flex items-center gap-3 p-3 border rounded-md border-gray-200 bg-gray-50/50 shadow-sm transition-colors hover:bg-gray-50"
+								:class="{ 'opacity-50': dragIndex === index }"
+								draggable="true"
+								@dragstart="onDragStart($event, index)"
+								@dragover.prevent
+								@drop="onDrop($event, index)"
 							>
-								<Bars3Icon class="w-5 h-5" />
-							</div>
-
-							<div class="flex-1">
-								<SuggestionInput
-									v-model="rule.condition"
-									label="Condition"
-									:suggestions="tagOptions"
-									placeholder="e.g. tag1 > 10 AND tag2 == 1"
-								/>
-							</div>
-
-							<div class="flex-1">
-								<SuggestionInput
-									v-model="rule.expression"
-									label="Expression"
-									:suggestions="tagOptions"
-									placeholder="e.g. tag1 * 2"
-								/>
-							</div>
-
-							<div class="shrink-0 mt-7">
-								<IconButton
-									variant="text"
-									color="error"
-									aria-label="Remove rule"
-									@click="removeRule(index)"
+								<div
+									class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-7"
 								>
-									<TrashIcon class="w-4 h-4" />
-								</IconButton>
+									<Bars3Icon class="w-5 h-5" />
+								</div>
+
+								<div class="flex-1 flex flex-col gap-3">
+									<SuggestionInput
+										v-model="rule.condition"
+										label="Condition"
+										:suggestions="tagOptions"
+										as="input"
+									/>
+									<SuggestionInput
+										v-model="rule.expression"
+										label="Expression"
+										:suggestions="tagOptions"
+										as="input"
+									/>
+								</div>
+
+								<div class="shrink-0 mt-7">
+									<IconButton
+										variant="text"
+										color="error"
+										aria-label="Remove rule"
+										@click="removeRule(index)"
+									>
+										<TrashIcon class="w-4 h-4" />
+									</IconButton>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<Button
-						variant="outlined"
-						color="primary"
-						class="w-full border-dashed"
-						@click="addRule"
-					>
-						<PlusIcon class="w-4 h-4 mr-1" />
-						Add Rule
-					</Button>
+						<Button
+							variant="outlined"
+							color="primary"
+							class="w-full border-dashed"
+							@click="addRule"
+						>
+							Add Rule
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
-
 		<template #footer>
 			<div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
 				<Button

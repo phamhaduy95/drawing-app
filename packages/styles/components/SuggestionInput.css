@@ -1,5 +1,5 @@
 .SuggestionInput_Positioner {
-	z-index: 10000;
+	z-index: var(--layer-index, 1100);
 }
 
 .SuggestionInput_Content {
