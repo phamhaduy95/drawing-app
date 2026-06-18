@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, onUnmounted, warn, type ComponentInstance } from 'vue';
+	import { onMounted, onUnmounted, warn, computed, type ComponentInstance } from 'vue';
 
 	import { Background } from '@vue-flow/background';
 	import { VueFlow, type Connection, type Edge, type NodeComponent } from '@vue-flow/core';
@@ -21,6 +21,8 @@
 	import { useKeyboardBindings } from './composables/useKeyboardBindings';
 	import { useNodeMovement } from './composables/useNodeMovement';
 	import { useNodeConfig } from './composables/useNodeConfig';
+	import { useSimulation } from './composables/useSimulation';
+	import { storeToRefs } from 'pinia';
 
 	import { generateEdge } from '@/modules/designer/utils/edge.utils';
 
@@ -81,6 +83,10 @@
 
 	const { canvasConfig } = useCanvasConfig();
 
+	const simulationStore = useSimulation();
+	const { mode } = storeToRefs(simulationStore);
+	const isLocking = computed(() => mode.value === 'simulation');
+
 	const onConnect = (connection: Connection) => {
 		if (connection.source === connection.target) {
 			warn('Source and target cannot be the same');
@@ -133,8 +139,8 @@
 			<!-- Center Canvas -->
 			<main
 				class="relative flex-1"
-				@drop="onPaletteDrop"
-				@dragover="onPaletteDragOver"
+				@drop="!isLocking ? onPaletteDrop($event) : null"
+				@dragover="!isLocking ? onPaletteDragOver($event) : null"
 			>
 				<EdgeMarkerDef />
 				<VueFlow
@@ -148,7 +154,9 @@
 					:zoom-on-double-click="false"
 					:pan-on-drag="[1]"
 					:delete-key-code="null"
-					:edges-updatable="true"
+					:edges-updatable="!isLocking"
+					:nodes-draggable="!isLocking"
+					:nodes-connectable="!isLocking"
 					:snap-to-grid="canvasConfig.snapToGrid"
 					:snap-grid="[canvasConfig.gridGap, canvasConfig.gridGap]"
 					@pane-click="closeContextMenu"

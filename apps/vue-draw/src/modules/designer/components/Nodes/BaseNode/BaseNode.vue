@@ -9,6 +9,8 @@
 	import { useResize } from '@/modules/designer/composables/useResize';
 	import { useRotation } from '@/modules/designer/composables/useRotation';
 	import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
+	import { useSimulation } from '@/modules/designer/composables/useSimulation';
+	import { storeToRefs } from 'pinia';
 
 	import BaseNodeConnector from './BaseNodeConnector.vue';
 	import BaseNodeTextInput from './BaseNodeTextInput.vue';
@@ -54,6 +56,8 @@
 	});
 
 	const { updateNodeData } = useVueFlow();
+	const simulationStore = useSimulation();
+	const { mode } = storeToRefs(simulationStore);
 
 	const unbindTag = (tagId: string) => {
 		const newTagIds = props.data.tagIds?.filter((id) => id !== tagId) || [];
@@ -85,7 +89,7 @@
 			:selected="selected"
 		>
 			<div
-				v-if="canRotate && selected"
+				v-if="canRotate && selected && mode === 'design'"
 				class="absolute left-1/2 top-0 flex h-6 w-6 -translate-x-1/2 -translate-y-full cursor-pointer items-center justify-center"
 				@mousedown="onRotateMouseDown"
 			>
@@ -105,7 +109,7 @@
 			:keep-aspect-ratio="computedKeepAspectRatio"
 		>
 			<NodeResizer
-				:is-visible="selected"
+				:is-visible="selected && mode === 'design'"
 				:line-style="resizerLineStyle"
 				:handle-style="resizerHandleStyle"
 				:min-width="24"

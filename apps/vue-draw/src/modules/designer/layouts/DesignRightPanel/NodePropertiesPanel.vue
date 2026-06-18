@@ -12,6 +12,8 @@
 	} from '@/modules/designer/types/Node.type';
 	import { PropertyField } from '../PropertyField';
 	import { useTagBindingDialog } from '@/modules/designer/components/Dialog/TagBindingDialog/useTagBindingDialog';
+	import { useSimulation } from '@/modules/designer/composables/useSimulation';
+	import { storeToRefs } from 'pinia';
 
 	type NumberInputProps = ComponentInstance<typeof NumberInput>['$props'];
 	type SingleSliderProps = ComponentInstance<typeof SingleSlider>['$props'];
@@ -19,6 +21,10 @@
 	const { selectedNode, updateNodeBasicProps, updateNodeData } = useNodeConfig();
 
 	const { openDialog } = useTagBindingDialog();
+
+	const simulationStore = useSimulation();
+	const { mode } = storeToRefs(simulationStore);
+	const isLocking = computed(() => mode.value === 'simulation');
 
 	const nodePosition = computed<XYPosition>(() => ({
 		x: Math.round(selectedNode.value?.position?.x ?? 0),
@@ -103,6 +109,8 @@
 			<div class="grid grid-cols-1 gap-3">
 				<PropertyField
 					label="Position X"
+					:mode="'input'"
+					tag-label="Tag"
 					@bind="openDialog({ tag: 'AA' })"
 				>
 					<template #input>
@@ -111,6 +119,7 @@
 							size="xs"
 							:min="0"
 							:model-value="nodePosition?.x"
+							:disabled="isLocking"
 							@value-change="handleXChange"
 						/>
 					</template>
@@ -122,6 +131,7 @@
 							size="xs"
 							:min="0"
 							:model-value="nodePosition?.y"
+							:disabled="isLocking"
 							@value-change="handleYChange"
 						/>
 					</template>
@@ -133,6 +143,7 @@
 						size="xs"
 						:min="0"
 						:model-value="nodeDimensions?.width"
+						:disabled="isLocking"
 						@value-change="handleWidthChange"
 					/>
 				</div>
@@ -143,6 +154,7 @@
 						size="xs"
 						:min="0"
 						:model-value="nodeDimensions?.height"
+						:disabled="isLocking"
 						@value-change="handleHeightChange"
 					/>
 				</div>
@@ -157,6 +169,7 @@
 				label="Hidden Component"
 				:checked="nodeHidden"
 				size="xs"
+				:disabled="isLocking"
 				@update:checked="handleHiddenChange"
 			/>
 			<NumberInput
@@ -164,6 +177,7 @@
 				label="Z-Index"
 				size="xs"
 				:model-value="nodeZIndex"
+				:disabled="isLocking"
 				@value-change="handleZIndexChange"
 			/>
 			<ColorPicker
@@ -171,6 +185,7 @@
 				:model-value="nodeConfigurableData.fill"
 				format="hex"
 				size="xs"
+				:disabled="isLocking"
 				@update:model-value="handleFillChange"
 			/>
 			<ColorPicker
@@ -178,6 +193,7 @@
 				:model-value="nodeConfigurableData.stroke"
 				format="hex"
 				size="xs"
+				:disabled="isLocking"
 				@update:model-value="handleStrokeChange"
 			/>
 			<div class="space-y-4 pt-1">
@@ -188,6 +204,7 @@
 					:max="5"
 					:step="0.1"
 					editable
+					:disabled="isLocking"
 					@update:model-value="hanldeStrokeWidthChange"
 				/>
 			</div>
@@ -206,6 +223,7 @@
 				:max="100"
 				:step="1"
 				editable
+				:disabled="isLocking"
 				@update:model-value="handleProgressBarValueChange"
 			/>
 		</div>

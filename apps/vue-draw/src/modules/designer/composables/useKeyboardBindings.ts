@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
 import { useNodeCommandFactory } from './useCommandFactory';
+import { useSimulation } from './useSimulation';
 
 const MODIFIER_KEYS = ['ctrlCmd', 'ctrl', 'cmd', 'alt', 'shift', 'meta'];
 
@@ -53,6 +54,7 @@ export const useKeyboardBindings = () => {
 	const { screenToFlowCoordinate, getSelectedNodes, getSelectedEdges, getConnectedEdges } =
 		useVueFlow();
 	const { createDeleteMultipleEntitiesCommand } = useNodeCommandFactory();
+	const simulationStore = useSimulation();
 
 	const mousePos = ref({ x: 0, y: 0 });
 
@@ -98,6 +100,7 @@ export const useKeyboardBindings = () => {
 
 	const registerBasicShortcuts = () => {
 		store.registerManyShortcuts([['delete'], ['backspace']], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			const nodes = getSelectedNodes.value;
 			const edges = getSelectedEdges.value;
@@ -112,12 +115,14 @@ export const useKeyboardBindings = () => {
 		});
 
 		store.registerShortcut(['ctrlCmd', 'c'], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			if (canCopy.value) {
 				copyNodes();
 			}
 		});
 		store.registerShortcut(['ctrlCmd', 'v'], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			if (canPaste.value) {
 				const position = screenToFlowCoordinate({
@@ -129,6 +134,7 @@ export const useKeyboardBindings = () => {
 		});
 
 		store.registerShortcut(['ctrlCmd', 'z'], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			if (canUndo.value) {
 				undo();
@@ -136,6 +142,7 @@ export const useKeyboardBindings = () => {
 		});
 
 		store.registerShortcut(['ctrlCmd', 'y'], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			if (canRedo.value) {
 				redo();
@@ -143,6 +150,7 @@ export const useKeyboardBindings = () => {
 		});
 
 		store.registerShortcut(['ctrlCmd', 'shift', 'z'], (e) => {
+			if (simulationStore.mode === 'simulation') return;
 			e.preventDefault();
 			if (canRedo.value) {
 				redo();

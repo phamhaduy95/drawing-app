@@ -13,8 +13,23 @@ export const useTagsStore = defineStore('tags', () => {
 		}
 	};
 
+	const addTags = (newTags: MeasurementType[]) => {
+		tags.value.push(...newTags);
+	};
+
+	const removeTags = (tagIds: string[]) => {
+		tags.value = tags.value.filter((t) => !tagIds.includes(t.id));
+	};
+
+	const clear = () => {
+		tags.value = [];
+	};
+
 	return {
 		tags,
-		updateTagValue
+		updateTagValue,
+		addTags,
+		removeTags,
+		clear
 	};
 });

@@ -1,23 +1,25 @@
 <script setup lang="ts">
-	import { useGrouping } from '@/modules/designer/composables/useGrouping';
-	import { useZoom } from '@/modules/designer/composables/useZoom';
-	import { useZindex } from '@/modules/designer/composables/useZindex';
-	import { useHistory } from '@/modules/designer/composables/useHistory';
 	import { useClipboard } from '@/modules/designer/composables/useClipboard';
+	import { useGrouping } from '@/modules/designer/composables/useGrouping';
+	import { useHistory } from '@/modules/designer/composables/useHistory';
 	import { useImportExport } from '@/modules/designer/composables/useImportExport';
+	import { useSimulation } from '@/modules/designer/composables/useSimulation';
+	import { useZindex } from '@/modules/designer/composables/useZindex';
+	import { useZoom } from '@/modules/designer/composables/useZoom';
+	import { storeToRefs } from 'pinia';
 
 	import IconBringToFront from '@assets/toolbar-icons/bring-to-front.svg';
+	import IconCopy from '@assets/toolbar-icons/copy.svg';
+	import IconFitView from '@assets/toolbar-icons/fit-view.svg';
 	import IconGroup from '@assets/toolbar-icons/group.svg';
+	import IconPaste from '@assets/toolbar-icons/paste.svg';
 	import IconRedo from '@assets/toolbar-icons/redo.svg';
+	import IconResetZoom from '@assets/toolbar-icons/reset-zoom.svg';
 	import IconSendToBack from '@assets/toolbar-icons/send-to-back.svg';
 	import IconUndo from '@assets/toolbar-icons/undo.svg';
 	import IconUnGroup from '@assets/toolbar-icons/ungroup.svg';
 	import IconZoomIn from '@assets/toolbar-icons/zoom-in.svg';
 	import IconZoomOut from '@assets/toolbar-icons/zoom-out.svg';
-	import IconFitView from '@assets/toolbar-icons/fit-view.svg';
-	import IconResetZoom from '@assets/toolbar-icons/reset-zoom.svg';
-	import IconCopy from '@assets/toolbar-icons/copy.svg';
-	import IconPaste from '@assets/toolbar-icons/paste.svg';
 
 	const { groupSelectedNodes, ungroup, canGroup, canUngroup } = useGrouping();
 	const { zoomIn, zoomOut, canZoomIn, canZoomOut, fitView, resetZoom, zoomPercentage } = useZoom();
@@ -27,6 +29,9 @@
 	const { undo, redo, canUndo, canRedo } = useHistory();
 
 	const { exportGraph, importGraph } = useImportExport();
+
+	const simulationStore = useSimulation();
+	const { mode, status } = storeToRefs(simulationStore);
 </script>
 
 <template>
@@ -187,6 +192,141 @@
 				@click="resetZoom()"
 			>
 				<IconResetZoom class="h-4 w-4" />
+			</button>
+		</div>
+
+		<!-- Center Actions (Simulation Mode) -->
+		<div class="flex items-center space-x-1 rounded bg-gray-100 p-0.5">
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold focus:outline-none transition-colors"
+				:class="
+					mode === 'design'
+						? 'bg-white shadow-sm text-indigo-600'
+						: 'text-gray-600 hover:bg-gray-200 cursor-pointer'
+				"
+				:disabled="mode === 'design'"
+				title="Design Mode"
+				@click="simulationStore.setMode('design')"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M12 20h9"></path>
+					<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+				</svg>
+				Design
+			</button>
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold focus:outline-none transition-colors cursor-pointer"
+				:class="
+					mode === 'simulation' && status === 'RUN'
+						? 'bg-white shadow-sm text-green-600'
+						: 'text-gray-600 hover:bg-gray-200'
+				"
+				title="Run Simulation"
+				@click="
+					simulationStore.setMode('simulation');
+					simulationStore.setStatus('RUN');
+				"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<polygon points="5 3 19 12 5 21 5 3"></polygon>
+				</svg>
+				Run
+			</button>
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold focus:outline-none transition-colors"
+				:class="[
+					mode === 'design' ? 'opacity-50 cursor-not-allowed text-gray-400' : 'cursor-pointer',
+					mode === 'simulation' && status === 'PAUSE'
+						? 'bg-white shadow-sm text-yellow-600'
+						: mode === 'simulation'
+							? 'text-gray-600 hover:bg-gray-200'
+							: ''
+				]"
+				:disabled="mode === 'design'"
+				title="Pause Simulation"
+				@click="simulationStore.setStatus('PAUSE')"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<rect
+						x="6"
+						y="4"
+						width="4"
+						height="16"
+					></rect>
+					<rect
+						x="14"
+						y="4"
+						width="4"
+						height="16"
+					></rect>
+				</svg>
+				Pause
+			</button>
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold focus:outline-none transition-colors"
+				:class="[
+					mode === 'design' ? 'opacity-50 cursor-not-allowed text-gray-400' : 'cursor-pointer',
+					mode === 'simulation' && status === 'STOP'
+						? 'bg-white shadow-sm text-red-600'
+						: mode === 'simulation'
+							? 'text-gray-600 hover:bg-gray-200'
+							: ''
+				]"
+				:disabled="mode === 'design'"
+				title="Stop Simulation"
+				@click="simulationStore.setStatus('STOP')"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<rect
+						x="3"
+						y="3"
+						width="18"
+						height="18"
+						rx="2"
+						ry="2"
+					></rect>
+				</svg>
+				Stop
 			</button>
 		</div>
 
