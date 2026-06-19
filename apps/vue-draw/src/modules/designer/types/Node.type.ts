@@ -69,7 +69,8 @@ export interface TagData {
 export interface BaseNodeData {
 	category: NodeCategory;
 	label?: string;
-	tagIds?: string[];
+	// key is field path and value is tag binded
+	bindings?: Record<string, string>;
 	showTag?: boolean;
 	rotation: number;
 }

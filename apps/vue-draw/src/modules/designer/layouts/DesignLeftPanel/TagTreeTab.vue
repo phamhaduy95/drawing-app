@@ -85,7 +85,7 @@
 </script>
 
 <template>
-	<div class="flex flex-col h-[100dvh] w-full">
+	<div class="flex flex-col h-dvh w-full">
 		<div class="border-b border-gray-100 px-4 py-3 shrink-0">
 			<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-800">Value Tags</h2>
 		</div>

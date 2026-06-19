@@ -30,3 +30,22 @@ Step 3: Implement node locking when app is in running mode.
 
 - in DesignerPage.vue get current mode via useSimulation composable and use it to lock user from doing certain operations while app is in run mode: - draggable: false - resizable: false - rotatable: false - connectable: false - deletable: false - copyable: false - pasteable: false - selectable: true
   in apps/vue-draw/src/modules/designer/layouts/DesignRightPanel/NodePropertiesPanel.vue, get current mode via useSimulation composable and use it to make every field read-only while app is in run mode.
+
+Step 4: Create a fake mocked real-time tag data.
+
+- create a method in useSimulation to update tag value for every tag by cycling through tagsList store array in 1 second interval.
+- When user click on Run the simulation would start and the progress of generating data start as well. When user press stop, the simulation would stop and progress would be reset to 0.
+
+the tag value field is value.value for this sample tag data.
+
+The value would start from 0 to 100, increment by 1 every second.
+
+    {
+    	id: 'tag-001',
+    	label: { id: 'tag-001-label', value: 'Temperature Sensor 1', quality: 'Good', timestamp: '2026-06-15T10:00:00Z', dataType: 'string' },
+    	description: { id: 'tag-001-desc', value: 'Measures the temperature of Reactor A', quality: 'Good', timestamp: '2026-06-15T10:00:00Z', dataType: 'string' },
+    	value: { id: 'tag-001-value', value: '45.5', quality: 'Good', timestamp: '2026-06-15T10:00:00Z', dataType: 'number' },
+    	server: { id: 'srv-1', name: 'Server1' },
+    	functionBlock: { id: 'fb-1', name: 'FB00PDI01', label: 'Temperature Control 1' },
+    	unit: { id: 'tag-001-unit', value: '°C', quality: 'Good', timestamp: '2026-06-15T10:00:00Z', dataType: 'string' }
+    },

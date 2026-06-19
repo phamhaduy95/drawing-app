@@ -61,28 +61,32 @@ We will use pinia store to store mapping between tag value to node property.
 One tag can be bound to multiple node properties.
 One node property can be bound to one tag value only at the time.
 
-The data structure to store tag binding is Map<string,{nodeId:string,field:string}[]> where key is the tag id and value is the list of node property ids that are bound to this tag.
+type BindingDataRecord = {
+tagId: string;
+nodeId: string;
+field: string;
+updateFunction: (value: any) => void;
+}
 
-For example:
-node-uuid-1:[{nodeId:'aaaa',field:'data.fillColor'},{nodeId:'abc',field:'label'}]
-
+The data structure to store tag binding is Map<string,BindingDataRecord[]>
 detail spec:
 
 The tag binding pinia store:
 state:
-{ tagBindings: Map<string,{nodeId:string,field:string}[]> }
+
+{ tagBindings: Map<string,BindingDataRecord[]> }
 
 methods:
 
-- addTagBinding(tagId: string, nodeId: string, field: string): void
-- removeTagBinding(tagId: string, nodeId: string, field: string): void
+- addTagBinding(data:BindingDataRecord): void
+- removeTagBinding(data:Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void
 - removeTag(tagId: string): void
 - clear():void
 
 useTagRegister composable: register node's tag bindings to the tag binding store.
 
-- registerTag(tagId: string, node: {nodeId: string, field: string}): void
-- unregisterTag(tagId: string, node: {nodeId: string, field: string}): void
+- registerTag(data:BindingDataRecord): void
+- unregisterTag(data:Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void
 
 #### Tag management store
 
@@ -100,3 +104,84 @@ methods:
 - create pinia store and its extended composiable.
 - currently we will use mocked tag lists from
   `apps/vue-draw/src/modules/designer/constant/defaultTags.ts`
+
+#### Tag Binding Dialog
+
+The Tag Binding Dialog is a dialog where user can bind tag value to node property.
+To open this dialog, from the NodePropertyPanel, user can click on the link icon on the right side of any Properties field
+There are three available modes for binding:
+
+- **Direct binding**
+- **Expression**
+- **Conditional expression**
+
+1. Direct Binding
+
+Direct binding is the simplest way to link a tag. It maps the raw value of a selected tag straight into the node property.
+
+- **How it works:** Use the Combobox dropdown to browse or search for a specific tag from the list of compatible tag values.
+
+The options :{
+label: {{}}
+value: {{tagId}}
+}
+
+- **Features:** The component supports keyword search, making it easy to find specific tags in a large industrial dataset.
+
+2. Expression
+
+The Expression mode allows you to write custom arithmetic or logical formulas combining one or more tags.
+
+- **How it works:** You can specify an expression directly in the input field. It supports standard arithmetic operators (such as plus, minus, multiply, divide).
+- **Autocomplete:** This field uses a `SuggestionInput` component. Simply type `@` to trigger an autocomplete menu that helps you quickly search and insert tag paths.
+- **Example:** You can write expressions like `(@Root.Server1.FB00PDI01.label.value + 10) / 1000` to scale or manipulate data before it is applied to the property.
+
+---
+
+3. Conditional Expression
+
+Last but not least, for more complex logic that requires conditional branching, you can use the Conditional Expression builder. This allows the node property to change dynamically based on the state of various tags.
+
+The Spec:
+
+The state of the TagBindingDialog live in pinia store:
+isOpen: boolean
+selectedMode: ENUM {direct | expression | conditional}
+expressionValue: string
+selectedTag: string
+selectedNode: {
+nodeId: string
+field: string
+}
+
+the we have public composiable useTagBindingDialog
+
+- openDialog(node: { nodeId: string; field: string },
+  tag?: string,
+  updateFunction?: (value: any) => void, // function for updating node property
+  mode: TagBindingMode = 'direct'): void
+  tag is tagId that bind to property. User can get the bounded tagId from node's data.bindings.
+
+- closeDialog(): void
+
+When user click on save button:
+
+- if selectedMode is direct
+  - Unregister the old tag binding if exist
+  - register the new tag binding
+  - update tag bindings from node's data.bindings
+  - close the dialog
+- if selectedMode is expression.`
+  NOT IMPLEMENTED at this version
+- if selectedMode is conditional
+  NOT IMPLEMENTED at this version
+
+Step 5: Implement real-time tag sync
+
+apps/vue-draw/src/modules/designer/composables/useTagRegister.ts,
+
+observe when the registered tag's value change, we need to execute registered update functions
+
+Note: the update process will run while app in running mode. Please use useSimulation to check the mode.
+
+When in run mode, on the NodePropertyPanel, The PropertyField instead of showing the name of binded tag, it should show the live value of the binded tag.

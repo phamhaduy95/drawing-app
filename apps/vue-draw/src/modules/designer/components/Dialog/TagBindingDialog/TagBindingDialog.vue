@@ -1,4 +1,7 @@
 <script setup lang="ts">
+	import { ref } from 'vue';
+	import { storeToRefs } from 'pinia';
+
 	import {
 		Button,
 		Dialog,
@@ -7,45 +10,24 @@
 		SingleCombobox,
 		SuggestionInput
 	} from '@packages/vue-components';
-	import { ref, watch } from 'vue';
+
 	import { Bars3Icon, TrashIcon } from '@heroicons/vue/20/solid';
 	import { useTagBindingDialog } from './useTagBindingDialog';
-	import { tagOptions } from '@/modules/designer/constant/defaultTags';
-	import type { ConditionalRule } from './TagBindingDialog.type';
+	import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
 
-	const { isOpen, closeDialog, confirmDialog, initialData } = useTagBindingDialog();
+	const { store, closeDialog, saveBinding } = useTagBindingDialog();
+	const { isOpen, selectedMode, selectedTag, expressionValue, rules } = storeToRefs(store);
+
+	const tagsStore = useTagsStore();
+	const { tagOptions } = storeToRefs(tagsStore);
 
 	const options = [
-		{ label: 'Bind', value: 'bind' },
+		{ label: 'Direct binding', value: 'direct' },
 		{ label: 'Single Expression', value: 'expression' },
-		{ label: 'Conditional expression', value: 'conditional-expression' }
+		{ label: 'Conditional expression', value: 'conditional' }
 	];
 
-	const selectedMode = ref('bind');
-	const tagValue = ref('');
-	const expressionValue = ref('');
-	const rules = ref<ConditionalRule[]>([]);
 	const dragIndex = ref<number | null>(null);
-
-	watch(isOpen, (val) => {
-		if (val && initialData.value) {
-			tagValue.value = initialData.value.tag || '';
-			expressionValue.value = initialData.value.expression || '';
-			rules.value = initialData.value.rules ? [...initialData.value.rules] : [];
-			if (initialData.value.rules && initialData.value.rules.length > 0) {
-				selectedMode.value = 'conditional-expression';
-			} else if (initialData.value.expression) {
-				selectedMode.value = 'expression';
-			} else {
-				selectedMode.value = 'bind';
-			}
-		} else if (!val) {
-			tagValue.value = '';
-			expressionValue.value = '';
-			rules.value = [];
-			selectedMode.value = 'bind';
-		}
-	});
 
 	const addRule = () => {
 		rules.value.push({
@@ -90,11 +72,7 @@
 	};
 
 	const handleConfirm = () => {
-		confirmDialog({
-			tag: tagValue.value,
-			expression: expressionValue.value,
-			rules: rules.value
-		});
+		saveBinding();
 	};
 </script>
 
@@ -117,11 +95,11 @@
 			/>
 			<div class="flex flex-col w-full h-full">
 				<div
-					v-if="selectedMode === 'bind'"
+					v-if="selectedMode === 'direct'"
 					class="animate-in fade-in slide-in-from-top-2 duration-200"
 				>
 					<SingleCombobox
-						v-model="tagValue"
+						v-model="selectedTag"
 						label="Tag"
 						:items="tagOptions"
 						placeholder="Select a tag"
@@ -136,13 +114,13 @@
 						v-model="expressionValue"
 						label="Expression"
 						:suggestions="tagOptions"
-						placeholder="Enter expression (e.g. tag1 + tag2)"
+						placeholder="Enter expression"
 						as="input"
 					/>
 				</div>
 
 				<div
-					v-else-if="selectedMode === 'conditional-expression'"
+					v-else-if="selectedMode === 'conditional'"
 					class="animate-in fade-in slide-in-from-top-2 duration-200"
 				>
 					<div class="flex flex-col gap-4">

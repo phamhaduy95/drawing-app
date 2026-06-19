@@ -6,12 +6,14 @@
 		mode?: 'tag' | 'input';
 		label?: string;
 		tagLabel?: string;
+		disabled?: boolean;
 	}
 
 	withDefaults(defineProps<PropertyFieldProps>(), {
 		mode: 'input',
 		label: '',
-		tagLabel: ''
+		tagLabel: '',
+		disabled: false
 	});
 
 	interface PropertyFieldEmits {
@@ -44,6 +46,7 @@
 						variant="text"
 						color="secondary"
 						aria-label="Edit Tag"
+						:disabled="disabled"
 						@click="emit('edit')"
 					>
 						<PencilIcon class="w-4 h-4" />
@@ -53,6 +56,7 @@
 						variant="text"
 						color="error"
 						aria-label="Clear Tag"
+						:disabled="disabled"
 						@click="emit('clear')"
 					>
 						<XMarkIcon class="w-4 h-4" />
@@ -74,6 +78,7 @@
 					color="primary"
 					class="shrink-0"
 					aria-label="Bind Tag"
+					:disabled="disabled"
 					@click="emit('bind')"
 				>
 					<LinkIcon class="w-4 h-4" />

@@ -13,6 +13,7 @@
 	import { PropertyField } from '../PropertyField';
 	import { useTagBindingDialog } from '@/modules/designer/components/Dialog/TagBindingDialog/useTagBindingDialog';
 	import { useSimulation } from '@/modules/designer/composables/useSimulation';
+	import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
 	import { storeToRefs } from 'pinia';
 
 	type NumberInputProps = ComponentInstance<typeof NumberInput>['$props'];
@@ -20,11 +21,33 @@
 
 	const { selectedNode, updateNodeBasicProps, updateNodeData } = useNodeConfig();
 
-	const { openDialog } = useTagBindingDialog();
+	const { openDialog, clearBinding } = useTagBindingDialog();
 
 	const simulationStore = useSimulation();
+	const tagsStore = useTagsStore();
 	const { mode } = storeToRefs(simulationStore);
 	const isLocking = computed(() => mode.value === 'simulation');
+
+	const getDisplayTagLabel = (tagId?: string) => {
+		if (!tagId) return 'Tag';
+		if (simulationStore.status !== 'RUN') return tagId;
+
+		const parts = tagId.split('.');
+		if (parts.length >= 4) {
+			const server = parts[1];
+			const block = parts[2];
+			const field = parts[3] as 'label' | 'description' | 'value' | 'unit';
+
+			const tag = tagsStore.tags.find(
+				(t) => t.server.name === server && t.functionBlock.name === block
+			);
+			if (tag) {
+				return String(tag[field]?.value ?? tagId);
+			}
+		}
+
+		return tagId;
+	};
 
 	const nodePosition = computed<XYPosition>(() => ({
 		x: Math.round(selectedNode.value?.position?.x ?? 0),
@@ -39,19 +62,19 @@
 		() => selectedNode.value?.data || defaultBasicShapeNodeData
 	);
 
-	const handleXChange: NumberInputProps['onValueChange'] = (value) => {
+	const handleXChange = (value: number | null) => {
 		updateNodeBasicProps({
 			position: { x: value ?? 0, y: nodePosition.value?.y ?? 0 }
 		});
 	};
 
-	const handleYChange: NumberInputProps['onValueChange'] = (value) => {
+	const handleYChange = (value: number | null) => {
 		updateNodeBasicProps({
 			position: { x: nodePosition.value?.x ?? 0, y: value ?? 0 }
 		});
 	};
 
-	const handleWidthChange: NumberInputProps['onValueChange'] = (value) => {
+	const handleWidthChange = (value: number | null) => {
 		updateNodeBasicProps({
 			dimensions: {
 				width: value ?? 0,
@@ -60,7 +83,7 @@
 		});
 	};
 
-	const handleHeightChange: NumberInputProps['onValueChange'] = (value) => {
+	const handleHeightChange = (value: number | null) => {
 		updateNodeBasicProps({
 			dimensions: {
 				width: nodeDimensions.value?.width ?? 0,
@@ -109,9 +132,24 @@
 			<div class="grid grid-cols-1 gap-3">
 				<PropertyField
 					label="Position X"
-					:mode="'input'"
-					tag-label="Tag"
-					@bind="openDialog({ tag: 'AA' })"
+					:disabled="isLocking"
+					:mode="selectedNode?.data?.bindings?.['position.x'] ? 'tag' : 'input'"
+					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['position.x'])"
+					@bind="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'position.x' },
+							undefined,
+							handleXChange
+						)
+					"
+					@edit="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'position.x' },
+							selectedNode?.data?.bindings?.['position.x'],
+							handleXChange
+						)
+					"
+					@clear="clearBinding(selectedNode?.id || '', 'position.x')"
 				>
 					<template #input>
 						<NumberInput
@@ -120,11 +158,31 @@
 							:min="0"
 							:model-value="nodePosition?.x"
 							:disabled="isLocking"
-							@value-change="handleXChange"
+							@update:model-value="handleXChange"
 						/>
 					</template>
 				</PropertyField>
-				<PropertyField label="Position Y">
+				<PropertyField
+					label="Position Y"
+					:disabled="isLocking"
+					:mode="selectedNode?.data?.bindings?.['position.y'] ? 'tag' : 'input'"
+					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['position.y'])"
+					@bind="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'position.y' },
+							undefined,
+							handleYChange
+						)
+					"
+					@edit="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'position.y' },
+							selectedNode?.data?.bindings?.['position.y'],
+							handleYChange
+						)
+					"
+					@clear="clearBinding(selectedNode?.id || '', 'position.y')"
+				>
 					<template #input>
 						<NumberInput
 							class="w-full"
@@ -136,28 +194,70 @@
 						/>
 					</template>
 				</PropertyField>
-				<div>
-					<NumberInput
-						class="w-full"
-						label="width"
-						size="xs"
-						:min="0"
-						:model-value="nodeDimensions?.width"
-						:disabled="isLocking"
-						@value-change="handleWidthChange"
-					/>
-				</div>
-				<div>
-					<NumberInput
-						class="w-full"
-						label="height"
-						size="xs"
-						:min="0"
-						:model-value="nodeDimensions?.height"
-						:disabled="isLocking"
-						@value-change="handleHeightChange"
-					/>
-				</div>
+				<PropertyField
+					label="Width"
+					:disabled="isLocking"
+					:mode="selectedNode?.data?.bindings?.['dimensions.width'] ? 'tag' : 'input'"
+					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['dimensions.width'])"
+					@bind="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'dimensions.width' },
+							undefined,
+							handleWidthChange
+						)
+					"
+					@edit="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'dimensions.width' },
+							selectedNode?.data?.bindings?.['dimensions.width'],
+							handleWidthChange
+						)
+					"
+					@clear="clearBinding(selectedNode?.id || '', 'dimensions.width')"
+				>
+					<template #input>
+						<NumberInput
+							class="w-full"
+							size="xs"
+							:min="0"
+							:model-value="nodeDimensions?.width"
+							:disabled="isLocking"
+							@value-change="handleWidthChange"
+						/>
+					</template>
+				</PropertyField>
+				<PropertyField
+					label="Height"
+					:disabled="isLocking"
+					:mode="selectedNode?.data?.bindings?.['dimensions.height'] ? 'tag' : 'input'"
+					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['dimensions.height'])"
+					@bind="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'dimensions.height' },
+							undefined,
+							handleHeightChange
+						)
+					"
+					@edit="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'dimensions.height' },
+							selectedNode?.data?.bindings?.['dimensions.height'],
+							handleHeightChange
+						)
+					"
+					@clear="clearBinding(selectedNode?.id || '', 'dimensions.height')"
+				>
+					<template #input>
+						<NumberInput
+							class="w-full"
+							size="xs"
+							:min="0"
+							:model-value="nodeDimensions?.height"
+							:disabled="isLocking"
+							@value-change="handleHeightChange"
+						/>
+					</template>
+				</PropertyField>
 			</div>
 		</div>
 
@@ -213,19 +313,44 @@
 		<!-- Progress Bar Settings -->
 		<div
 			v-if="selectedNode?.type === NodeType.ProgressBar"
-			class="space-y-4"
+			class="space-y-2"
 		>
 			<h3 class="text-sm font-semibold uppercase tracking-wide text-gray-800">Progress Bar</h3>
-			<SingleSlider
-				label="Progress Level"
-				:model-value="progressBarValue"
-				:min="0"
-				:max="100"
-				:step="1"
-				editable
-				:disabled="isLocking"
-				@update:model-value="handleProgressBarValueChange"
-			/>
+			<div class="grid grid-cols-1 gap-3">
+				<PropertyField
+					label="Progress Level"
+					:disabled="isLocking"
+					:mode="selectedNode?.data?.bindings?.['value'] ? 'tag' : 'input'"
+					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['value'])"
+					@bind="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'value' },
+							undefined,
+							handleProgressBarValueChange
+						)
+					"
+					@edit="
+						openDialog(
+							{ nodeId: selectedNode?.id || '', field: 'value' },
+							selectedNode?.data?.bindings?.['value'],
+							handleProgressBarValueChange
+						)
+					"
+					@clear="clearBinding(selectedNode?.id || '', 'value')"
+				>
+					<template #input>
+						<SingleSlider
+							:model-value="progressBarValue"
+							:min="0"
+							:max="100"
+							:step="1"
+							editable
+							:disabled="isLocking"
+							@update:model-value="handleProgressBarValueChange"
+						/>
+					</template>
+				</PropertyField>
+			</div>
 		</div>
 	</div>
 </template>

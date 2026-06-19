@@ -4,10 +4,10 @@ export interface ConditionalRule {
 	expression: string;
 }
 
+export type TagBindingMode = 'direct' | 'expression' | 'conditional';
+
 export interface TagBindingData {
 	tag?: string;
-	expression?: string;
-	rules?: ConditionalRule[];
 }
 
 export interface TagBindingDialogProps {

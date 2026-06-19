@@ -1,20 +1,21 @@
 export type TagDataType = 'number' | 'string' | 'boolean' | 'date' | 'time';
 
 export interface MeasurementType {
-	id: string;
+	id: string; //uuid;
 	label: TagValue;
-	description: string;
+	description: TagValue;
 	value: TagValue;
 	server: Server;
 	functionBlock: FunctionBlock;
 	unit: TagValue;
-	dataType: TagDataType;
 }
 
 export interface TagValue {
+	id: string;
 	value: string;
 	quality: string;
 	timestamp: string;
+	dataType: TagDataType;
 }
 
 export interface Server {

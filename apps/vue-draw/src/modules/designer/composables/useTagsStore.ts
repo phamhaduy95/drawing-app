@@ -1,10 +1,25 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { MeasurementType } from '@/modules/designer/types/Tag.type';
-import { defaultTags } from '@/modules/designer/constant/defaultTags';
+import { mockedInitalTags } from '@/modules/designer/constant/defaultTags';
 
 export const useTagsStore = defineStore('tags', () => {
-	const tags = ref<MeasurementType[]>(defaultTags);
+	const tags = ref<MeasurementType[]>(mockedInitalTags);
+
+	const tagOptions = computed(() => {
+		return tags.value.flatMap((tag) => {
+			const base = `Root.${tag.server.name}.${tag.functionBlock.name}`;
+			const options: { label: string; value: string }[] = [];
+
+			const tagFields = ['label', 'description', 'value', 'unit'];
+			tagFields.forEach((field) => {
+				const optionStr = `${base}.${field}`;
+				options.push({ label: optionStr, value: optionStr });
+			});
+
+			return options;
+		});
+	});
 
 	const updateTagValue = (id: string, value: string) => {
 		const tag = tags.value.find((t) => t.id === id);
@@ -27,6 +42,7 @@ export const useTagsStore = defineStore('tags', () => {
 
 	return {
 		tags,
+		tagOptions,
 		updateTagValue,
 		addTags,
 		removeTags,
