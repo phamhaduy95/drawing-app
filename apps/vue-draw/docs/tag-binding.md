@@ -185,3 +185,40 @@ observe when the registered tag's value change, we need to execute registered up
 Note: the update process will run while app in running mode. Please use useSimulation to check the mode.
 
 When in run mode, on the NodePropertyPanel, The PropertyField instead of showing the name of binded tag, it should show the live value of the binded tag.
+
+Step 6: evaluate Simple Expression in TagBindingDialog simple expression input
+using mathjs. Two main tasks:
+
+1. evaluate the expression and return the result
+2. get all tag id from the expression.
+
+The tag id is always in this format: Root.server.functionBlock.measurement_field_name
+
+since mathJs can not understand this format, we need to wrap around any string that belong this format with vars[""]
+
+Example: "@Root.Server1.FB00PDI01.label.value + 10" -> "vars[\"Root.Server1.FB00PDI01.label.value\"] + 10"
+
+compile the expression using mathJs compile function
+
+Create a variable as function to update the node property where user can pass array args into which present a list of variable get from expression
+Example:
+
+const compiledExpression = compile("vars[arg0] + vars[arg1]");
+get variable 'pathName' from the tags list that match the "vars[index]"
+Example:
+const variablePathName = ast.filter(n=>n.nsymbol).map(n=>n.name)
+
+const updateNode = (args:MeasurementType[])=>{
+//extract variable from tagsData using path and pass it to compiledExpression.
+from the args extract all value using the variablePathName
+compiledExpression.evaluate({"vars":args})
+
+}
+
+then register to useTagRegister as expressionUpdater
+
+in useTagRegister:
+create a new ref called expressionUpdaters with this type Map<string, updateFunction>
+where key is nodeId.field-path format
+
+Watch the tags store change to execute every register updatedFunction

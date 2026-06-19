@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
+import * as math from 'mathjs';
 import { useTagRegister } from '@/modules/designer/composables/useTagRegister';
 
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { ConditionalRule, TagBindingMode } from './TagBindingDialog.type';
+import type { MeasurementType } from '@/modules/designer/types/Tag.type';
 import { useVueFlow } from '@vue-flow/core';
+import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
 
 const useTagBindingDialogStore = defineStore('tagBindingDialog', () => {
 	const isOpen = ref(false);
@@ -11,6 +16,7 @@ const useTagBindingDialogStore = defineStore('tagBindingDialog', () => {
 	const initialTag = ref<string>();
 	const expressionValue = ref<string>();
 	const selectedTag = ref<string>();
+
 	const selectedNode = ref<{ nodeId: string; field: string } | null>(null);
 	const rules = ref<ConditionalRule[]>([]);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,7 +36,8 @@ const useTagBindingDialogStore = defineStore('tagBindingDialog', () => {
 
 export const useTagBindingDialog = () => {
 	const store = useTagBindingDialogStore();
-	const { registerTag, unregisterTag } = useTagRegister();
+	const { registerTag, clearBindingsForNodeField, registerExpressionUpdater } = useTagRegister();
+	const tagsStore = useTagsStore();
 	const { updateNodeData, findNode } = useVueFlow();
 
 	const openDialog = (
@@ -77,10 +84,7 @@ export const useTagBindingDialog = () => {
 		const node = findNode(nodeId);
 		if (!node) return;
 
-		const currentTag = node.data?.bindings?.[field];
-		if (currentTag) {
-			unregisterTag({ tagId: currentTag, nodeId, field });
-		}
+		clearBindingsForNodeField(nodeId, field);
 
 		const newBindings = { ...(node.data?.bindings || {}) };
 		delete newBindings[field];
@@ -95,9 +99,8 @@ export const useTagBindingDialog = () => {
 		switch (store.selectedMode) {
 			case 'direct':
 				if (store.selectedNode) {
-					if (store.initialTag) {
-						unregisterTag({ tagId: store.initialTag, ...store.selectedNode });
-					}
+					clearBindingsForNodeField(store.selectedNode.nodeId, store.selectedNode.field);
+
 					if (store.selectedTag && store.updateFunction) {
 						registerTag({
 							tagId: store.selectedTag,
@@ -111,6 +114,80 @@ export const useTagBindingDialog = () => {
 				closeDialog();
 				break;
 			case 'expression':
+				if (store.selectedNode && store.expressionValue) {
+					clearBindingsForNodeField(store.selectedNode.nodeId, store.selectedNode.field);
+
+					// Since the mathjs.parse does not accept variable that has this format %A.B.C.D.
+					// add the function to wrap around any str that belong this format with vars[""]
+					const wrappedExpression = store.expressionValue.replace(
+						/%([a-zA-Z0-9_.]+)/g,
+						(_, path) => `vars["${path}"]`
+					);
+
+					const ast = math.parse(wrappedExpression);
+
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const tagPathnames = ast.filter((n: any) => n.isConstantNode).map((e: any) => e.value);
+
+					try {
+						const compiledExpression = math.compile(wrappedExpression);
+
+						const innerUpdater = store.updateFunction;
+						const updateNode = (_: MeasurementType[]) => {
+							const vars: Record<string, any> = {};
+
+							tagPathnames.forEach((pathname: string) => {
+								if (typeof pathname !== 'string') return;
+
+								const parts = pathname.split('.');
+								if (parts.length >= 4) {
+									const server = parts[1];
+									const block = parts[2];
+									const field = parts[3] as 'label' | 'description' | 'value' | 'unit';
+
+									const tag = tagsStore.tags.find(
+										(t) => t.server.name === server && t.functionBlock.name === block
+									);
+
+									if (tag) {
+										const rawVal = tag[field].value;
+										const dataType = tag[field].dataType;
+										let parsedVal: any = rawVal;
+
+										if (dataType === 'number') {
+											const num = Number(rawVal);
+											parsedVal = !isNaN(num) ? num : rawVal;
+										} else if (dataType === 'boolean') {
+											parsedVal = rawVal === 'true';
+										}
+
+										vars[pathname] = parsedVal;
+									}
+								}
+							});
+
+							console.log('var', vars);
+
+							try {
+								const result = compiledExpression.evaluate({ vars });
+								innerUpdater!(result);
+							} catch (e) {
+								console.error('Expression evaluation error', e);
+							}
+						};
+
+						registerExpressionUpdater(
+							store.selectedNode!.nodeId,
+							store.selectedNode!.field,
+							updateNode
+						);
+
+						store.selectedTag = store.expressionValue;
+						updateNodeBinding();
+					} catch (e) {
+						console.error('Failed to parse expression', e);
+					}
+				}
 				closeDialog();
 				break;
 			case 'conditional':

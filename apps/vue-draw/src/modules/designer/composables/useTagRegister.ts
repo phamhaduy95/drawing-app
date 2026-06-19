@@ -3,6 +3,9 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useTagsStore } from './useTagsStore';
 import { useSimulation } from './useSimulation';
+import type { MeasurementType } from '@/modules/designer/types/Tag.type';
+
+export type ExpressionUpdater = (tags: MeasurementType[]) => void;
 
 export type BindingDataRecord = {
 	tagId: string;
@@ -13,6 +16,7 @@ export type BindingDataRecord = {
 
 export const useTagBindingStore = defineStore('tagBindings', () => {
 	const tagBindings = ref<Map<string, BindingDataRecord[]>>(new Map());
+	const expressionUpdaters = ref<Map<string, ExpressionUpdater>>(new Map());
 
 	const tagsStore = useTagsStore();
 	const simulationStore = useSimulation();
@@ -41,6 +45,11 @@ export const useTagBindingStore = defineStore('tagBindings', () => {
 
 					bindings.forEach((binding) => binding.updateFunction(parsedVal));
 				});
+			});
+
+			// Execute all registered expression updaters
+			expressionUpdaters.value.forEach((updater) => {
+				updater(newTags);
 			});
 		},
 		{ deep: true }
@@ -74,16 +83,41 @@ export const useTagBindingStore = defineStore('tagBindings', () => {
 		tagBindings.value.delete(tagId);
 	};
 
+	const removeBindingsForNodeField = (nodeId: string, field: string) => {
+		for (const [tagId, bindings] of tagBindings.value.entries()) {
+			const newBindings = bindings.filter((b) => !(b.nodeId === nodeId && b.field === field));
+			if (newBindings.length === 0) {
+				tagBindings.value.delete(tagId);
+			} else if (newBindings.length !== bindings.length) {
+				tagBindings.value.set(tagId, newBindings);
+			}
+		}
+		expressionUpdaters.value.delete(`${nodeId}-${field}`);
+	};
+
 	const clear = () => {
 		tagBindings.value.clear();
+		expressionUpdaters.value.clear();
+	};
+
+	const registerExpressionUpdater = (nodeId: string, field: string, updater: ExpressionUpdater) => {
+		expressionUpdaters.value.set(`${nodeId}-${field}`, updater);
+	};
+
+	const unregisterExpressionUpdater = (nodeId: string, field: string) => {
+		expressionUpdaters.value.delete(`${nodeId}-${field}`);
 	};
 
 	return {
 		tagBindings,
+		expressionUpdaters,
 		addTagBinding,
 		removeTagBinding,
+		removeBindingsForNodeField,
 		removeTag,
-		clear
+		clear,
+		registerExpressionUpdater,
+		unregisterExpressionUpdater
 	};
 });
 
@@ -98,8 +132,27 @@ export const useTagRegister = () => {
 		store.removeTagBinding(data);
 	};
 
+	const clearBindingsForNodeField = (nodeId: string, field: string) => {
+		store.removeBindingsForNodeField(nodeId, field);
+	};
+
+	const registerExpressionUpdater = (
+		nodeId: string,
+		field: string,
+		updater: ExpressionUpdater
+	) => {
+		store.registerExpressionUpdater(nodeId, field, updater);
+	};
+
+	const unregisterExpressionUpdater = (nodeId: string, field: string) => {
+		store.unregisterExpressionUpdater(nodeId, field);
+	};
+
 	return {
 		registerTag,
-		unregisterTag
+		unregisterTag,
+		clearBindingsForNodeField,
+		registerExpressionUpdater,
+		unregisterExpressionUpdater
 	};
 };

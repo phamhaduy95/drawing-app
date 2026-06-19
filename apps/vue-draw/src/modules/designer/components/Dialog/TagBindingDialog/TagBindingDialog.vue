@@ -113,6 +113,7 @@
 					<SuggestionInput
 						v-model="expressionValue"
 						label="Expression"
+						trigger-char="%"
 						:suggestions="tagOptions"
 						placeholder="Enter expression"
 						as="input"

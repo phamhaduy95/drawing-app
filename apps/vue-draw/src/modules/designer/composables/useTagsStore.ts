@@ -21,6 +21,22 @@ export const useTagsStore = defineStore('tags', () => {
 		});
 	});
 
+	const tagMap = computed(() => {
+		const map = new Map<string, string>();
+
+		tags.value.forEach((tag) => {
+			const base = `Root.${tag.server.name}.${tag.functionBlock.name}`;
+			const tagFields = ['label', 'description', 'value', 'unit'] as const;
+			tagFields.forEach((field) => {
+				const optionStr = `${base}.${field}`;
+				const tagFieldId = tag[field].id;
+				map.set(optionStr, tagFieldId);
+			});
+		});
+
+		return map;
+	});
+
 	const updateTagValue = (id: string, value: string) => {
 		const tag = tags.value.find((t) => t.id === id);
 		if (tag) {
@@ -45,6 +61,7 @@ export const useTagsStore = defineStore('tags', () => {
 		tagOptions,
 		updateTagValue,
 		addTags,
+		tagMap,
 		removeTags,
 		clear
 	};
