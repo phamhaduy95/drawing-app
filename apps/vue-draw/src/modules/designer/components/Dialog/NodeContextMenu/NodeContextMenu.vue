@@ -7,6 +7,10 @@
 	import { Popover } from '@packages/vue-components';
 	import IconTrend from '@assets/toolbar-icons/trend.svg';
 	import IconAlarm from '@assets/toolbar-icons/alarm.svg';
+	import IconCopy from '@assets/toolbar-icons/copy.svg';
+	import IconPaste from '@assets/toolbar-icons/paste.svg';
+	import IconDuplicate from '@assets/toolbar-icons/duplicate.svg';
+	import IconDelete from '@assets/toolbar-icons/delete.svg';
 
 	const props = defineProps<{
 		nodeId: string;
@@ -108,29 +112,33 @@
 				</button>
 				<div class="my-1 border-t border-gray-200"></div>
 				<button
-					class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
 					@click="handleCopy"
 				>
+					<IconCopy class="h-4 w-4" />
 					Copy
 				</button>
 				<button
-					class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
 					:disabled="!canPaste"
 					@click="handlePaste"
 				>
+					<IconPaste class="h-4 w-4" />
 					Paste
 				</button>
 				<button
-					class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
 					@click="handleDuplicate"
 				>
+					<IconDuplicate class="h-4 w-4" />
 					Duplicate
 				</button>
 				<div class="my-1 border-t border-gray-200"></div>
 				<button
-					class="flex w-full items-center px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
 					@click="handleDelete"
 				>
+					<IconDelete class="h-4 w-4" />
 					Delete
 				</button>
 			</div>
