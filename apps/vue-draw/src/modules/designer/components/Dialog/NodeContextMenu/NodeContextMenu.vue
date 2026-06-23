@@ -3,7 +3,10 @@
 	import { useVueFlow } from '@vue-flow/core';
 	import { useClipboard } from '@/modules/designer/composables/useClipboard';
 	import { useNodeCreation } from '@/modules/designer/composables/useNodeCreation';
+	import { useNodeTagBinding } from '@/modules/designer/composables/useNodeTagBinding';
 	import { Popover } from '@packages/vue-components';
+	import IconTrend from '@assets/toolbar-icons/trend.svg';
+	import IconAlarm from '@assets/toolbar-icons/alarm.svg';
 
 	const props = defineProps<{
 		nodeId: string;
@@ -21,6 +24,7 @@
 
 	const open = ref(true);
 
+	const { hasLinkedTags } = useNodeTagBinding(computed(() => props.nodeId));
 	const positioningProps = computed(() => ({
 		getAnchorRect: () => new DOMRect(props.x, props.y, 0, 0),
 		placement: 'bottom-start' as const,
@@ -61,6 +65,18 @@
 		open.value = false;
 		emit('close');
 	};
+
+	const openTrendPage = () => {
+		window.open('/trend-page', '_blank');
+		open.value = false;
+		emit('close');
+	};
+
+	const openAlarmPage = () => {
+		window.open('/alarm-page', '_blank');
+		open.value = false;
+		emit('close');
+	};
 </script>
 
 <template>
@@ -74,6 +90,23 @@
 				class="z-50 min-w-[160px] rounded-md border border-gray-200 bg-white py-1 shadow-lg focus:outline-none"
 				@contextmenu.prevent
 			>
+				<button
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+					:disabled="!hasLinkedTags"
+					@click="openTrendPage"
+				>
+					<IconTrend class="h-4 w-4" />
+					Go to Trend
+				</button>
+				<button
+					class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+					:disabled="!hasLinkedTags"
+					@click="openAlarmPage"
+				>
+					<IconAlarm class="h-4 w-4" />
+					Go to Alarm
+				</button>
+				<div class="my-1 border-t border-gray-200"></div>
 				<button
 					class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
 					@click="handleCopy"

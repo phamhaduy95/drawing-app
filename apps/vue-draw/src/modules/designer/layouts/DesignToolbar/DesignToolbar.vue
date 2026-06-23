@@ -6,8 +6,10 @@
 	import { useSimulation } from '@/modules/designer/composables/useSimulation';
 	import { useZindex } from '@/modules/designer/composables/useZindex';
 	import { useZoom } from '@/modules/designer/composables/useZoom';
+	import { useNodeTagBinding } from '@/modules/designer/composables/useNodeTagBinding';
+	import { useVueFlow } from '@vue-flow/core';
+	import { computed } from 'vue';
 	import { storeToRefs } from 'pinia';
-
 	import IconBringToFront from '@assets/toolbar-icons/bring-to-front.svg';
 	import IconCopy from '@assets/toolbar-icons/copy.svg';
 	import IconFitView from '@assets/toolbar-icons/fit-view.svg';
@@ -20,7 +22,8 @@
 	import IconUnGroup from '@assets/toolbar-icons/ungroup.svg';
 	import IconZoomIn from '@assets/toolbar-icons/zoom-in.svg';
 	import IconZoomOut from '@assets/toolbar-icons/zoom-out.svg';
-
+	import IconTrend from '@assets/toolbar-icons/trend.svg';
+	import IconAlarm from '@assets/toolbar-icons/alarm.svg';
 	const { groupSelectedNodes, ungroup, canGroup, canUngroup } = useGrouping();
 	const { zoomIn, zoomOut, canZoomIn, canZoomOut, fitView, resetZoom, zoomPercentage } = useZoom();
 
@@ -32,6 +35,22 @@
 
 	const simulationStore = useSimulation();
 	const { mode, status } = storeToRefs(simulationStore);
+
+	const { getSelectedNodes } = useVueFlow();
+	const activeNodeId = computed(() => {
+		const nodes = getSelectedNodes.value;
+		return nodes.length === 1 ? nodes[0]?.id : undefined;
+	});
+
+	const { hasLinkedTags } = useNodeTagBinding(activeNodeId);
+
+	const openTrendPage = () => {
+		window.open('/trend-page', '_blank');
+	};
+
+	const openAlarmPage = () => {
+		window.open('/alarm-page', '_blank');
+	};
 </script>
 
 <template>
@@ -332,6 +351,35 @@
 
 		<!-- Right Actions -->
 		<div class="flex items-center space-x-1">
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold focus:outline-none transition-colors"
+				:class="
+					hasLinkedTags
+						? 'cursor-pointer text-gray-600 hover:bg-gray-100'
+						: 'cursor-not-allowed text-gray-300'
+				"
+				:disabled="!hasLinkedTags"
+				title="Go to Trend"
+				@click="openTrendPage"
+			>
+				<IconTrend class="h-4 w-4" />
+			</button>
+			<button
+				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold focus:outline-none transition-colors"
+				:class="
+					hasLinkedTags
+						? 'cursor-pointer text-gray-600 hover:bg-gray-100'
+						: 'cursor-not-allowed text-gray-300'
+				"
+				:disabled="!hasLinkedTags"
+				title="Go to Alarm"
+				@click="openAlarmPage"
+			>
+				<IconAlarm class="h-4 w-4" />
+			</button>
+
+			<div class="mx-1 h-4 w-px bg-gray-300"></div>
+
 			<button
 				class="toolbar-btn tooltip-trigger flex items-center gap-1 rounded bg-gray-50 text-gray-600 border border-gray-200 px-2 py-1 text-xs font-semibold focus:outline-none hover:bg-gray-100 transition-colors"
 				title="Import Graph from JSON"
