@@ -1,5 +1,6 @@
 export interface ConditionalRule {
 	id: string;
+	continue: boolean;
 	condition: string;
 	expression: string;
 }

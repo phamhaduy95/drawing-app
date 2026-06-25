@@ -196,11 +196,39 @@ export const useTagBindingDialog = () => {
 		}
 	};
 
+	const directBindTag = (
+		nodeId: string,
+		field: string,
+		tagId: string,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		updateFunction: (value: any) => void
+	) => {
+		const node = findNode(nodeId);
+		if (!node) return;
+
+		clearBindingsForNodeField(nodeId, field);
+		registerTag({
+			tagId,
+			nodeId,
+			field,
+			updateFunction
+		});
+
+		updateNodeData(nodeId, {
+			...node.data,
+			bindings: {
+				...(node.data?.bindings || {}),
+				[field]: tagId
+			}
+		});
+	};
+
 	return {
 		store,
 		openDialog,
 		closeDialog,
 		saveBinding,
-		clearBinding
+		clearBinding,
+		directBindTag
 	};
 };

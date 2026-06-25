@@ -7,13 +7,17 @@
 		label?: string;
 		tagLabel?: string;
 		disabled?: boolean;
+		isDragHovering?: boolean;
+		isIncompatibleDrag?: boolean;
 	}
 
 	withDefaults(defineProps<PropertyFieldProps>(), {
 		mode: 'input',
 		label: '',
 		tagLabel: '',
-		disabled: false
+		disabled: false,
+		isDragHovering: false,
+		isIncompatibleDrag: false
 	});
 
 	interface PropertyFieldEmits {
@@ -25,7 +29,15 @@
 </script>
 
 <template>
-	<div class="flex items-center gap-2 mb-2 w-full">
+	<div
+		class="flex items-center gap-2 mb-2 w-full transition-all rounded-sm"
+		:class="[
+			isDragHovering
+				? 'outline outline-2 outline-indigo-400 outline-offset-2 bg-indigo-50 z-10 relative'
+				: '',
+			isIncompatibleDrag ? 'opacity-40 grayscale pointer-events-none' : ''
+		]"
+	>
 		<label
 			class="w-1/3 text-xs font-medium text-gray-500 truncate"
 			:title="label"

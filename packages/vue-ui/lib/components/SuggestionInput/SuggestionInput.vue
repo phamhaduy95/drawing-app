@@ -192,6 +192,7 @@
 		<ArkPopover.Anchor as-child>
 			<BaseField
 				class="SuggestionInput TextArea"
+				:style="{ '--input-rows': rows }"
 				:label="label"
 				:supporting-text="supportingText"
 				:status="status"

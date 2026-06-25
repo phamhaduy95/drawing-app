@@ -1,10 +1,11 @@
 <script setup lang="ts">
-	import { computed, type ComponentInstance } from 'vue';
+	import { computed, ref, type ComponentInstance } from 'vue';
 	import type { Dimensions, XYPosition } from '@vue-flow/core';
 
 	import { SingleSlider, NumberInput, ColorPicker, Switch } from '@packages/vue-components';
 	import { useNodeConfig } from '@/modules/designer/composables/useNodeConfig';
 	import { defaultBasicShapeNodeData } from '@/modules/designer/constant/default';
+	import { activeDragTagType } from '@/modules/designer/composables/useDnD';
 	import {
 		type BasicShapeNodeData,
 		type FormFieldNodeData,
@@ -21,7 +22,7 @@
 
 	const { selectedNode, updateNodeBasicProps, updateNodeData } = useNodeConfig();
 
-	const { openDialog, clearBinding } = useTagBindingDialog();
+	const { openDialog, clearBinding, directBindTag } = useTagBindingDialog();
 
 	const simulationStore = useSimulation();
 	const tagsStore = useTagsStore();
@@ -123,6 +124,41 @@
 	const handleProgressBarValueChange = (value: number) => {
 		updateNodeData<FormFieldNodeData>({ value: value.toString() });
 	};
+
+	const dragHoverField = ref<string | null>(null);
+
+	const handleDragEnter = (field: string) => {
+		if (isLocking.value) return;
+		dragHoverField.value = field;
+	};
+
+	const handleDragLeave = (field: string) => {
+		if (dragHoverField.value === field) {
+			dragHoverField.value = null;
+		}
+	};
+
+	const isFieldIncompatible = (expectedType: string) => {
+		if (!activeDragTagType.value) return false;
+		return activeDragTagType.value !== expectedType;
+	};
+
+	const handleTagDrop = (event: DragEvent, field: string, updateFunction: (value: any) => void) => {
+		dragHoverField.value = null;
+		if (isLocking.value || !selectedNode.value?.id) return;
+
+		try {
+			const data = event.dataTransfer?.getData('application/vueflow');
+			if (!data) return;
+
+			const payload = JSON.parse(data);
+			if (payload.isTag && payload.tagId) {
+				directBindTag(selectedNode.value.id, field, payload.tagId, updateFunction);
+			}
+		} catch (e) {
+			console.error('Failed to handle tag drop', e);
+		}
+	};
 </script>
 
 <template>
@@ -135,6 +171,8 @@
 					:disabled="isLocking"
 					:mode="selectedNode?.data?.bindings?.['position.x'] ? 'tag' : 'input'"
 					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['position.x'])"
+					:is-drag-hovering="dragHoverField === 'position.x'"
+					:is-incompatible-drag="isFieldIncompatible('number')"
 					@bind="
 						openDialog(
 							{ nodeId: selectedNode?.id || '', field: 'position.x' },
@@ -150,6 +188,10 @@
 						)
 					"
 					@clear="clearBinding(selectedNode?.id || '', 'position.x')"
+					@dragover.prevent
+					@dragenter.prevent="handleDragEnter('position.x')"
+					@dragleave.prevent="handleDragLeave('position.x')"
+					@drop.prevent="handleTagDrop($event, 'position.x', handleXChange)"
 				>
 					<template #input>
 						<NumberInput
@@ -167,6 +209,8 @@
 					:disabled="isLocking"
 					:mode="selectedNode?.data?.bindings?.['position.y'] ? 'tag' : 'input'"
 					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['position.y'])"
+					:is-drag-hovering="dragHoverField === 'position.y'"
+					:is-incompatible-drag="isFieldIncompatible('number')"
 					@bind="
 						openDialog(
 							{ nodeId: selectedNode?.id || '', field: 'position.y' },
@@ -182,6 +226,10 @@
 						)
 					"
 					@clear="clearBinding(selectedNode?.id || '', 'position.y')"
+					@dragover.prevent
+					@dragenter.prevent="handleDragEnter('position.y')"
+					@dragleave.prevent="handleDragLeave('position.y')"
+					@drop.prevent="handleTagDrop($event, 'position.y', handleYChange)"
 				>
 					<template #input>
 						<NumberInput
@@ -199,6 +247,8 @@
 					:disabled="isLocking"
 					:mode="selectedNode?.data?.bindings?.['dimensions.width'] ? 'tag' : 'input'"
 					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['dimensions.width'])"
+					:is-drag-hovering="dragHoverField === 'dimensions.width'"
+					:is-incompatible-drag="isFieldIncompatible('number')"
 					@bind="
 						openDialog(
 							{ nodeId: selectedNode?.id || '', field: 'dimensions.width' },
@@ -214,6 +264,10 @@
 						)
 					"
 					@clear="clearBinding(selectedNode?.id || '', 'dimensions.width')"
+					@dragover.prevent
+					@dragenter.prevent="handleDragEnter('dimensions.width')"
+					@dragleave.prevent="handleDragLeave('dimensions.width')"
+					@drop.prevent="handleTagDrop($event, 'dimensions.width', handleWidthChange)"
 				>
 					<template #input>
 						<NumberInput
@@ -231,6 +285,8 @@
 					:disabled="isLocking"
 					:mode="selectedNode?.data?.bindings?.['dimensions.height'] ? 'tag' : 'input'"
 					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['dimensions.height'])"
+					:is-drag-hovering="dragHoverField === 'dimensions.height'"
+					:is-incompatible-drag="isFieldIncompatible('number')"
 					@bind="
 						openDialog(
 							{ nodeId: selectedNode?.id || '', field: 'dimensions.height' },
@@ -246,6 +302,10 @@
 						)
 					"
 					@clear="clearBinding(selectedNode?.id || '', 'dimensions.height')"
+					@dragover.prevent
+					@dragenter.prevent="handleDragEnter('dimensions.height')"
+					@dragleave.prevent="handleDragLeave('dimensions.height')"
+					@drop.prevent="handleTagDrop($event, 'dimensions.height', handleHeightChange)"
 				>
 					<template #input>
 						<NumberInput
@@ -322,6 +382,8 @@
 					:disabled="isLocking"
 					:mode="selectedNode?.data?.bindings?.['value'] ? 'tag' : 'input'"
 					:tag-label="getDisplayTagLabel(selectedNode?.data?.bindings?.['value'])"
+					:is-drag-hovering="dragHoverField === 'value'"
+					:is-incompatible-drag="isFieldIncompatible('number')"
 					@bind="
 						openDialog(
 							{ nodeId: selectedNode?.id || '', field: 'value' },
@@ -337,6 +399,10 @@
 						)
 					"
 					@clear="clearBinding(selectedNode?.id || '', 'value')"
+					@dragover.prevent
+					@dragenter.prevent="handleDragEnter('value')"
+					@dragleave.prevent="handleDragLeave('value')"
+					@drop.prevent="handleTagDrop($event, 'value', handleProgressBarValueChange)"
 				>
 					<template #input>
 						<SingleSlider

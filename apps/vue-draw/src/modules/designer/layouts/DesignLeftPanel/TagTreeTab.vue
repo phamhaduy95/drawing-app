@@ -5,7 +5,7 @@
 	import { useTagsStore } from '@/modules/designer/composables/useTagsStore';
 	import type { MeasurementType, TagValue } from '@/modules/designer/types/Tag.type';
 
-	const { onPaletteDragStart } = useDnD();
+	const { onPaletteDragStart, onPaletteDragEnd } = useDnD();
 	const tagsStore = useTagsStore();
 
 	const buildNodeFromObject = (
@@ -99,7 +99,15 @@
 						v-if="(node as any).isTag"
 						class="flex items-center w-full cursor-grab active:cursor-grabbing hover:bg-gray-50 rounded"
 						draggable="true"
-						@dragstart="onPaletteDragStart($event, { isTag: true, tag: (node as any).tag } as any)"
+						@dragstart="
+							onPaletteDragStart($event, {
+								isTag: true,
+								tag: (node as any).tag,
+								tagId: `Root.${(node as any).tag.server.name}.${(node as any).tag.functionBlock.name}.${node.label}`,
+								dataType: (node as any).tag[node.label]?.dataType
+							} as any)
+						"
+						@dragend="onPaletteDragEnd"
 					>
 						<span class="text-xs text-gray-700">{{ node.label }}</span>
 					</div>

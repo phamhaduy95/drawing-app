@@ -1,3 +1,4 @@
+import { ref } from 'vue';
 import { useVueFlow } from '@vue-flow/core';
 
 import { useNodeCreation } from '@/modules/designer/composables/useNodeCreation';
@@ -17,7 +18,11 @@ interface NodeDragPayload {
 interface TagDragPayload {
 	isTag: true;
 	tag: TagData;
+	tagId?: string;
+	dataType?: string;
 }
+
+export const activeDragTagType = ref<string | null>(null);
 
 export type DragPayload = NodeDragPayload | TagDragPayload;
 
@@ -33,6 +38,13 @@ export const useDnD = () => {
 			event.dataTransfer.setData('application/vueflow', JSON.stringify(payload));
 			event.dataTransfer.effectAllowed = 'move';
 		}
+		if (payload.isTag && payload.dataType) {
+			activeDragTagType.value = payload.dataType;
+		}
+	};
+
+	const onPaletteDragEnd = () => {
+		activeDragTagType.value = null;
 	};
 
 	const onPaletteDragOver = (event: DragEvent) => {
@@ -109,6 +121,7 @@ export const useDnD = () => {
 	return {
 		onPaletteDrop,
 		onPaletteDragStart,
-		onPaletteDragOver
+		onPaletteDragOver,
+		onPaletteDragEnd
 	};
 };

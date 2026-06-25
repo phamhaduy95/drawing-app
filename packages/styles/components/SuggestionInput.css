@@ -73,6 +73,14 @@
 	line-height: inherit;
 }
 
+.SuggestionInput {
+	--input-rows: 1;
+}
+
+.SuggestionInput_Input {
+	height: calc(var(--input-rows) * var(--field-height));
+}
+
 .SuggestionInput_Input::placeholder {
 	color: var(--color-on-surface-variant);
 }

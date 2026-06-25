@@ -1,16 +1,28 @@
-Tag binding
+# Tag Binding Architecture
 
-#### Definition
+## 1. Overview
 
-Tag binding is the process of binding a data source to a graphical object's properties such as color, label, border-color, dimenstion.
+Tag binding is the process of linking a data source (a tag) to a graphical object's properties, such as color, label, border-color, or dimension. To bind a tag to a node property, the data type of the tag's value must be compatible with the target property's data type.
 
-The Measurement data object and Tag data is defined below:
+### 1.1 Tag Binding via Drag and Drop
+
+Users can quickly establish a direct binding by dragging a tag value from the right-hand panel (Tag Explorer) into a property field on the left-hand panel (Properties). This action is functionally equivalent to configuring a **Direct Binding** via the Tag Binding Dialog.
+
+Depend on the type comptiblilty between tag and property field, any imcompatible field would be grey-out.
+
+When hovering dragging tag and move it over property field that compatible with tag's data type, the property field will be highlighted with a blue border.
+
+---
+
+## 2. Data Models
+
+The core data structures involved in tag binding are `MeasurementType` and `TagValue`. Any field inside a `MeasurementType` that is assigned a `TagValue` type (e.g., `value`, `description`, `unit`) is considered an independent tag.
 
 ```typescript
 export type TagDataType = 'number' | 'string' | 'boolean' | 'date' | 'time';
 
 export interface MeasurementType {
-	id: string; //uuid;
+	id: string; // uuid
 	label: TagValue;
 	description: TagValue;
 	value: TagValue;
@@ -20,7 +32,7 @@ export interface MeasurementType {
 }
 
 export interface TagValue {
-	id: string; ;
+	id: string;
 	value: string;
 	quality: string;
 	timestamp: string;
@@ -39,186 +51,155 @@ export interface FunctionBlock {
 }
 ```
 
-Note: The any field inside Meassurement that is assigned TagBalue type such as value, description, unit and so on is considered as a tag.
+### 2.1 Tag ID Format
 
-The tag id often follow this format:
-Root.server.functionBlock.Measurement_field_name
+A unique tag ID typically follows a dot-notation path format:
+`Root.<server>.<functionBlock>.<Measurement_field_name>`
 
-For example:
-tagId: 'Root.OPCUA.FB001.Value'
-tagId: 'Root.OPCUA.FB001.Description'
-tagId: 'Root.OPCUA.FB001.Unit'
+**Examples:**
 
-You can find type definition on `apps/vue-draw/src/modules/designer/types/Tag.type.ts`
+- `Root.OPCUA.FB001.Value`
+- `Root.OPCUA.FB001.Description`
+- `Root.OPCUA.FB001.Unit`
 
-To be able to bind tag value to any node property:
-The datatype of the tag value must be compatible with the property's datatype.
-
-#### Tag binding management
-
-We will use pinia store to store mapping between tag value to node property.
-
-One tag can be bound to multiple node properties.
-One node property can be bound to one tag value only at the time.
-
-type BindingDataRecord = {
-tagId: string;
-nodeId: string;
-field: string;
-updateFunction: (value: any) => void;
-}
-
-The data structure to store tag binding is Map<string,BindingDataRecord[]>
-detail spec:
-
-The tag binding pinia store:
-state:
-
-{ tagBindings: Map<string,BindingDataRecord[]> }
-
-methods:
-
-- addTagBinding(data:BindingDataRecord): void
-- removeTagBinding(data:Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void
-- removeTag(tagId: string): void
-- clear():void
-
-useTagRegister composable: register node's tag bindings to the tag binding store.
-
-- registerTag(data:BindingDataRecord): void
-- unregisterTag(data:Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void
-
-#### Tag management store
-
-The Tag management store is a pinia store that stores the available MeasurementType and user can register tags to this store.
-
-state:
-{ tags: MeasurementType[] }
-
-methods:
-
-- addTags(tags: MeasurementType[]): void
-- removeTags(tagIds: string[]): void
-- clear():void
-
-- create pinia store and its extended composiable.
-- currently we will use mocked tag lists from
-  `apps/vue-draw/src/modules/designer/constant/defaultTags.ts`
-
-#### Tag Binding Dialog
-
-The Tag Binding Dialog is a dialog where user can bind tag value to node property.
-To open this dialog, from the NodePropertyPanel, user can click on the link icon on the right side of any Properties field
-There are three available modes for binding:
-
-- **Direct binding**
-- **Expression**
-- **Conditional expression**
-
-1. Direct Binding
-
-Direct binding is the simplest way to link a tag. It maps the raw value of a selected tag straight into the node property.
-
-- **How it works:** Use the Combobox dropdown to browse or search for a specific tag from the list of compatible tag values.
-
-The options :{
-label: {{}}
-value: {{tagId}}
-}
-
-- **Features:** The component supports keyword search, making it easy to find specific tags in a large industrial dataset.
-
-2. Expression
-
-The Expression mode allows you to write custom arithmetic or logical formulas combining one or more tags.
-
-- **How it works:** You can specify an expression directly in the input field. It supports standard arithmetic operators (such as plus, minus, multiply, divide).
-- **Autocomplete:** This field uses a `SuggestionInput` component. Simply type `@` to trigger an autocomplete menu that helps you quickly search and insert tag paths.
-- **Example:** You can write expressions like `(@Root.Server1.FB00PDI01.label.value + 10) / 1000` to scale or manipulate data before it is applied to the property.
+_(Type definitions are located in `apps/vue-draw/src/modules/designer/types/Tag.type.ts`)_
 
 ---
 
-3. Conditional Expression
+## 3. State Management
 
-Last but not least, for more complex logic that requires conditional branching, you can use the Conditional Expression builder. This allows the node property to change dynamically based on the state of various tags.
+### 3.1 Tag Management Store
 
-The Spec:
+A Pinia store responsible for maintaining the available industrial tags in the system.
 
-The state of the TagBindingDialog live in pinia store:
-isOpen: boolean
-selectedMode: ENUM {direct | expression | conditional}
-expressionValue: string
-selectedTag: string
-selectedNode: {
-nodeId: string
-field: string
+- **State:** `{ tags: MeasurementType[] }`
+- **Actions:**
+  - `addTags(tags: MeasurementType[]): void`
+  - `removeTags(tagIds: string[]): void`
+  - `clear(): void`
+
+_Note: The system currently uses mocked tag lists sourced from `apps/vue-draw/src/modules/designer/constant/defaultTags.ts`._
+
+### 3.2 Tag Binding Store
+
+A Pinia store managing the mapping between tag values and specific node properties.
+
+- **Rule:** One tag can be bound to multiple node properties, but a single node property can only be bound to one tag at a time.
+
+- **Data Structure:** `Map<string, BindingDataRecord[]>`
+
+```typescript
+type BindingDataRecord = {
+	tagId: string;
+	nodeId: string;
+	field: string;
+	updateFunction: (value: any) => void;
+};
+```
+
+- **State:** `{ tagBindings: Map<string, BindingDataRecord[]> }`
+- **Actions:**
+  - `addTagBinding(data: BindingDataRecord): void`
+  - `removeTagBinding(data: Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void`
+  - `removeTag(tagId: string): void`
+  - `clear(): void`
+
+### 3.3 `useTagRegister` Composable
+
+Provides an interface for nodes to register and unregister their tag bindings to the central store.
+
+- `registerTag(data: BindingDataRecord): void`
+- `unregisterTag(data: Pick<BindingDataRecord, 'tagId' | 'nodeId' | 'field'>): void`
+
+---
+
+## 4. Real-time Tag Sync
+
+The system must observe changes to registered tags and dynamically execute the associated `updateFunction` to reflect live data on the canvas.
+
+- **Implementation Location:** `apps/vue-draw/src/modules/designer/composables/useTagRegister.ts`
+- **Execution Context:** Updates should only process when the application is in `running` mode (verified via the `useSimulation` composable).
+- **UI Behavior:** In run mode, the `PropertyField` on the Node Property Panel displays the live, bound value instead of the tag name.
+
+---
+
+## 5. Tag Binding Dialog
+
+The Tag Binding Dialog provides a detailed interface for binding a tag value to a node property. It can be accessed by clicking the "link" icon next to any property field in the Node Properties Panel.
+
+### 5.1 Dialog State Management
+
+The dialog relies on a Pinia store and the `useTagBindingDialog` composable.
+
+- **State:**
+
+```typescript
+{
+	isOpen: boolean;
+	selectedMode: 'direct' | 'expression' | 'conditional';
+	expressionValue: string;
+	selectedTag: string;
+	selectedNode: {
+		nodeId: string;
+		field: string;
+	} | null;
 }
+```
 
-the we have public composiable useTagBindingDialog
+- **Actions (`useTagBindingDialog`):**
+  - `openDialog(node: { nodeId: string, field: string }, tag?: string, updateFunction?: (value: any) => void, mode: TagBindingMode = 'direct'): void`
+    _(Note: `tag` is the tagId that binds to the property. Users can get the bound tagId from `node.data.bindings`.)_
+  - `closeDialog(): void`
 
-- openDialog(node: { nodeId: string; field: string },
-  tag?: string,
-  updateFunction?: (value: any) => void, // function for updating node property
-  mode: TagBindingMode = 'direct'): void
-  tag is tagId that bind to property. User can get the bounded tagId from node's data.bindings.
+**Save Action Workflow:**
+When the user clicks the "Save" button:
 
-- closeDialog(): void
+- **Direct Mode:**
+  1. Unregister the existing tag binding (if any).
+  2. Register the new tag binding.
+  3. Update tag bindings inside the node's `data.bindings`.
+  4. Close the dialog.
+- **Expression / Conditional Modes:** _(Not implemented in the current version)._
 
-When user click on save button:
+### 5.2 Binding Modes
 
-- if selectedMode is direct
-  - Unregister the old tag binding if exist
-  - register the new tag binding
-  - update tag bindings from node's data.bindings
-  - close the dialog
-- if selectedMode is expression.`
-  NOT IMPLEMENTED at this version
-- if selectedMode is conditional
-  NOT IMPLEMENTED at this version
+#### Mode 1: Direct Binding
 
-Step 5: Implement real-time tag sync
+The simplest method to link a tag. It maps the raw value of the selected tag directly into the node property.
 
-apps/vue-draw/src/modules/designer/composables/useTagRegister.ts,
+- **UI Layout:** A split-pane design with the header "Select tag binding".
+  - **Left Pane:** Search bar and hierarchical Tag TreeView.
+  - **Right Pane:** Selected tag details (Name, Description, Unit, Upper Limit, Lower Limit).
+- **Features:** Supports keyword searching to quickly locate tags within large industrial datasets.
 
-observe when the registered tag's value change, we need to execute registered update functions
+#### Mode 2: Expression
 
-Note: the update process will run while app in running mode. Please use useSimulation to check the mode.
+Allows users to write custom arithmetic or logical formulas combining one or more tags.
 
-When in run mode, on the NodePropertyPanel, The PropertyField instead of showing the name of binded tag, it should show the live value of the binded tag.
+- **Input:** Standard mathematical operators (`+`, `-`, `*`, `/`) are supported.
+- **Autocomplete:** Powered by the `SuggestionInput` component. Typing `%` triggers an autocomplete dropdown for tag paths.
+- **Example:** `(%Root.Server1.FB00PDI01.value + 10) / 1000`
 
-Step 6: evaluate Simple Expression in TagBindingDialog simple expression input
-using mathjs. Two main tasks:
+**Expression Evaluation Integration:**
+Evaluating simple expressions relies on `mathjs`.
 
-1. evaluate the expression and return the result
-2. get all tag id from the expression.
+1. **Parsing Tag Paths:** Since `mathjs` cannot parse the dot-notation path natively, valid tag strings must be wrapped.
+   - Example: `%Root.Server1.FB00PDI01.value + 10` is transformed to `vars["Root.Server1.FB00PDI01.value"] + 10`.
+2. **Compilation:** Compile the wrapped expression using `mathjs`'s `compile()` function.
+   ```typescript
+   const compiledExpression = compile('vars[arg0] + vars[arg1]');
+   ```
+3. **Execution & Updaters:**
+   - Extract required tag paths from the expression AST (`const variablePathName = ast.filter(n => n.nsymbol).map(n => n.name)`).
+   - Create an `updateNode` function that maps live tag values to these variables and evaluates `compiledExpression.evaluate({ "vars": args })`.
+   - Store these updater functions in a reactive `Map<string, updateFunction>` called `expressionUpdaters` (keyed by `nodeId.field-path`) within `useTagRegister`.
+   - Watch the tags store for changes to trigger the registered expression updaters.
 
-The tag id is always in this format: Root.server.functionBlock.measurement_field_name
+#### Mode 3: Conditional Expression
 
-since mathJs can not understand this format, we need to wrap around any string that belong this format with vars[""]
+For complex logic requiring conditional branching, allowing node properties to change dynamically based on tag states.
 
-Example: "@Root.Server1.FB00PDI01.label.value + 10" -> "vars[\"Root.Server1.FB00PDI01.label.value\"] + 10"
-
-compile the expression using mathJs compile function
-
-Create a variable as function to update the node property where user can pass array args into which present a list of variable get from expression
-Example:
-
-const compiledExpression = compile("vars[arg0] + vars[arg1]");
-get variable 'pathName' from the tags list that match the "vars[index]"
-Example:
-const variablePathName = ast.filter(n=>n.nsymbol).map(n=>n.name)
-
-const updateNode = (args:MeasurementType[])=>{
-//extract variable from tagsData using path and pass it to compiledExpression.
-from the args extract all value using the variablePathName
-compiledExpression.evaluate({"vars":args})
-
-}
-
-then register to useTagRegister as expressionUpdater
-
-in useTagRegister:
-create a new ref called expressionUpdaters with this type Map<string, updateFunction>
-where key is nodeId.field-path format
-
-Watch the tags store change to execute every register updatedFunction
+- **UI Layout:** A table-based rule builder.
+  - **Columns:** `Order` | `Continue` (Checkbox) | `Condition` (Expression via SuggestionInput) | `Value` (Expression via SuggestionInput) | `Action` (Delete Row Icon)
+  - **Controls:** An "Add row" button at the bottom.
+  - **Interactivity:** Users can reorder rows via drag-and-drop using `@dnd-kit/vue` (currently mocked, underlying expression logic pending).

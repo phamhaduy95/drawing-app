@@ -8,7 +8,7 @@
 	import { nodeConfigMap } from '@/modules/designer/constant/nodeConfig';
 	import { NodeContextMenu } from './components/Dialog/NodeContextMenu';
 	import { ShapeSelectionDialog } from './components/Dialog/ShapeSelectionDialog';
-	import { DesignLeftPanel, DesignRightPanel, DesignToolbar } from './layouts';
+	import { DesignLeftPanel, DesignRightPanel, DesignToolbar, FloatingToolbar } from './layouts';
 
 	import { BaseEdge, EdgeMarkerDef, ConnectionLine } from './components/Edges';
 
@@ -197,6 +197,7 @@
 					@close="closeContextMenu"
 				/>
 				<ShapeSelectionDialog />
+				<FloatingToolbar />
 			</main>
 			<!-- Right Panel: Properties -->
 			<DesignRightPanel />
